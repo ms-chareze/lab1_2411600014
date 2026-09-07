@@ -1,146 +1,232 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lab 4 Enhanced Inventory Dashboard</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="css/style.css">
-    <!-- Chart.js CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-</head>
-<body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-        <div class="container-fluid">
-            <a class="navbar-brand fw-bold" href="#">Inventory Portal</a>
-            <div class="d-flex align-items-center">
-                <span class="text-white me-3" id="userDisplay">Welcome, Admin</span>
-                <button class="btn btn-outline-light btn-sm" id="logoutBtn">Logout</button>
-            </div>
-        </div>
-    </nav>
+let categoryChartInstance = null;
+let statusChartInstance = null;
+let topProductsChartInstance = null;
+let simulationInterval = null;
 
-    <div class="container-fluid">
-        <div class="row">
-            <main class="col-md-12 px-md-4 py-4">
-                
-                <div class="d-flex justify-content-between align-items-center pb-2 mb-3 border-bottom">
-                    <h2 id="greeting">Dashboard Overview</h2>
-                    <button class="btn btn-success" id="exportBtn">📥 Export CSV</button>
-                </div>
+document.addEventListener('DOMContentLoaded', async () => {
+    // 1. Session & Welcome Header
+    const currentUser = localStorage.getItem('currentUser') || 'admin';
+    const welcomeUserEl = document.getElementById('welcomeUser');
+    const greetingHeaderEl = document.getElementById('greetingHeader');
 
-                <!-- Low Stock Alert Banner -->
-                <div id="alertSection" class="mb-4"></div>
+    if (welcomeUserEl) welcomeUserEl.textContent = `Welcome, ${currentUser}`;
+    if (greetingHeaderEl) greetingHeaderEl.textContent = `Good Evening, ${currentUser}!`;
 
-                <!-- Summary Cards -->
-                <div class="row mb-4">
-                    <div class="col-md-3">
-                        <div class="card p-3 shadow-sm border-start border-4 border-primary">
-                            <span class="text-muted small">Total Products</span>
-                            <h3 id="statTotalProducts" class="fw-bold mb-0">0</h3>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="card p-3 shadow-sm border-start border-4 border-success">
-                            <span class="text-muted small">Total Inventory Value</span>
-                            <h3 id="statTotalValue" class="fw-bold mb-0">$0.00</h3>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="card p-3 shadow-sm border-start border-4 border-danger">
-                            <span class="text-muted small">Low Stock Alerts</span>
-                            <h3 id="statLowStock" class="fw-bold mb-0 text-danger">0</h3>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="card p-3 shadow-sm border-start border-4 border-info">
-                            <span class="text-muted small">Categories</span>
-                            <h3 id="statCategories" class="fw-bold mb-0">0</h3>
-                        </div>
-                    </div>
-                </div>
+    // 2. Working Logout Redirects
+    const handleLogout = (e) => {
+        e.preventDefault();
+        localStorage.removeItem('currentUser');
+        window.location.href = 'index.html';
+    };
 
-                <!-- Charts Section -->
-                <div class="row mb-4">
-                    <div class="col-md-4">
-                        <div class="card chart-card p-3">
-                            <h6 class="fw-bold">Value by Category</h6>
-                            <div class="chart-container">
-                                <canvas id="categoryChart"></canvas>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="card chart-card p-3">
-                            <h6 class="fw-bold">Stock Status Distribution</h6>
-                            <div class="chart-container">
-                                <canvas id="statusChart"></canvas>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="card chart-card p-3">
-                            <h6 class="fw-bold">Top 5 Products by Value</h6>
-                            <div class="chart-container">
-                                <canvas id="topProductsChart"></canvas>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+    const logoutBtn = document.getElementById('logoutBtn');
+    const sidebarLogout = document.getElementById('sidebarLogout');
+    if (logoutBtn) logoutBtn.addEventListener('click', handleLogout);
+    if (sidebarLogout) sidebarLogout.addEventListener('click', handleLogout);
 
-                <!-- Filter & Search Controls -->
-                <div class="card p-3 mb-4 shadow-sm">
-                    <div class="row g-3">
-                        <div class="col-md-4">
-                            <input type="text" id="searchInput" class="form-control" placeholder="🔍 Search by Name or SKU...">
-                        </div>
-                        <div class="col-md-3">
-                            <select id="categoryFilter" class="form-select">
-                                <option value="ALL">All Categories</option>
-                            </select>
-                        </div>
-                        <div class="col-md-3">
-                            <select id="statusFilter" class="form-select">
-                                <option value="ALL">All Stock Statuses</option>
-                                <option value="In Stock">In Stock</option>
-                                <option value="Low Stock">Low Stock</option>
-                                <option value="Out of Stock">Out of Stock</option>
-                            </select>
-                        </div>
-                        <div class="col-md-2">
-                            <button id="resetFiltersBtn" class="btn btn-outline-secondary w-100">Reset Filters</button>
-                        </div>
-                    </div>
-                </div>
+    // 3. Load product dataset
+    await DataManager.loadProducts();
 
-                <!-- Inventory Table -->
-                <div class="card shadow-sm">
-                    <div class="card-header bg-white">
-                        <h5 class="mb-0 fw-bold">Inventory Products</h5>
-                    </div>
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle mb-0">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>SKU</th>
-                                    <th>Product Name</th>
-                                    <th>Category</th>
-                                    <th>Price</th>
-                                    <th>Quantity</th>
-                                    <th>Status</th>
-                                </tr>
-                            </thead>
-                            <tbody id="inventoryTableBody"></tbody>
-                        </table>
-                    </div>
-                </div>
+    // Helper: Highlight matching search terms
+    function highlightText(text, query) {
+        if (!query) return text;
+        const regex = new RegExp(`(${query})`, 'gi');
+        return text.replace(regex, '<mark class="p-0 bg-warning">$1</mark>');
+    }
 
-            </main>
-        </div>
-    </div>
+    // 4. Render Chart.js
+    function renderCharts(filteredProducts) {
+        // Chart 1: Value by Category
+        const categoryValues = {};
+        filteredProducts.forEach(p => {
+            categoryValues[p.category] = (categoryValues[p.category] || 0) + (p.price * p.quantity);
+        });
 
-    <!-- JavaScript Module Loading -->
-    <script src="js/dataManager.js"></script>
-    <script src="js/dashboard.js"></script>
-</body>
-</html>
+        const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+        if (categoryChartInstance) categoryChartInstance.destroy();
+        categoryChartInstance = new Chart(categoryCtx, {
+            type: 'bar',
+            data: {
+                labels: Object.keys(categoryValues),
+                datasets: [{
+                    label: 'Value ($)',
+                    data: Object.values(categoryValues),
+                    backgroundColor: '#9d80e4'
+                }]
+            },
+            options: { responsive: true, maintainAspectRatio: false }
+        });
+
+        // Chart 2: Stock Status Distribution
+        const statusCounts = { "In Stock": 0, "Low Stock": 0, "Out of Stock": 0 };
+        filteredProducts.forEach(p => {
+            const status = DataManager.getStatus(p.quantity, p.minStock);
+            statusCounts[status]++;
+        });
+
+        const statusCtx = document.getElementById('statusChart').getContext('2d');
+        if (statusChartInstance) statusChartInstance.destroy();
+        statusChartInstance = new Chart(statusCtx, {
+            type: 'pie',
+            data: {
+                labels: Object.keys(statusCounts),
+                datasets: [{
+                    data: Object.values(statusCounts),
+                    backgroundColor: ['#198754', '#ffc107', '#dc3545']
+                }]
+            },
+            options: { responsive: true, maintainAspectRatio: false }
+        });
+
+        // Chart 3: Top 5 Products by Total Value
+        const sortedProducts = [...filteredProducts]
+            .sort((a, b) => (b.price * b.quantity) - (a.price * a.quantity))
+            .slice(0, 5);
+
+        const topCtx = document.getElementById('topProductsChart').getContext('2d');
+        if (topProductsChartInstance) topProductsChartInstance.destroy();
+        topProductsChartInstance = new Chart(topCtx, {
+            type: 'bar',
+            data: {
+                labels: sortedProducts.map(p => p.name),
+                datasets: [{
+                    label: 'Total Value ($)',
+                    data: sortedProducts.map(p => p.price * p.quantity),
+                    backgroundColor: '#641246'
+                }]
+            },
+            options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false }
+        });
+    }
+
+    // 5. Update UI Stats, Table & Low Stock Alerts
+    function updateDashboard() {
+        const search = document.getElementById('searchInput').value;
+        const category = document.getElementById('categoryFilter').value;
+        const stockStatus = document.getElementById('stockFilter').value;
+        const minPrice = parseFloat(document.getElementById('minPrice').value);
+        const maxPrice = parseFloat(document.getElementById('maxPrice').value);
+
+        const filtered = DataManager.getFilteredProducts(search, category, stockStatus, minPrice, maxPrice);
+
+        // Update Key Metrics Cards
+        let totalVal = 0;
+        let totalQty = 0;
+        let lowStockCount = 0;
+
+        filtered.forEach(p => {
+            totalVal += p.price * p.quantity;
+            totalQty += p.quantity;
+            if (p.quantity <= p.minStock) lowStockCount++;
+        });
+
+        document.getElementById('totalProducts').textContent = filtered.length;
+        document.getElementById('totalValue').textContent = `$${totalVal.toFixed(2)}`;
+        document.getElementById('lowStockAlerts').textContent = lowStockCount;
+        document.getElementById('totalQuantity').textContent = totalQty;
+
+        // Render Data Table
+        const tbody = document.getElementById('inventoryTableBody');
+        tbody.innerHTML = '';
+        filtered.forEach(p => {
+            const status = DataManager.getStatus(p.quantity, p.minStock);
+            let badgeClass = 'bg-success';
+            let rowClass = '';
+
+            // Highlight low stock / out of stock rows in table
+            if (status === 'Low Stock') {
+                badgeClass = 'bg-warning text-dark';
+                rowClass = 'table-warning';
+            } else if (status === 'Out of Stock') {
+                badgeClass = 'bg-danger';
+                rowClass = 'table-danger';
+            }
+
+            const tr = document.createElement('tr');
+            if (rowClass) tr.classList.add(rowClass);
+
+            // Highlight search matching text in SKU and Name
+            const highlightedSku = highlightText(p.sku, search);
+            const highlightedName = highlightText(p.name, search);
+
+            tr.innerHTML = `
+                <td>${highlightedSku}</td>
+                <td>${highlightedName}</td>
+                <td>${p.category}</td>
+                <td>$${p.price.toFixed(2)}</td>
+                <td>${p.quantity}</td>
+                <td><span class="badge ${badgeClass}">${status}</span></td>
+                <td>$${(p.price * p.quantity).toFixed(2)}</td>
+            `;
+            tbody.appendChild(tr);
+        });
+
+        // Update Low Stock Banner List
+        const lowStockItems = DataManager.products.filter(p => p.quantity <= p.minStock);
+        document.getElementById('lowStockCountText').textContent = lowStockItems.length;
+        const alertList = document.getElementById('lowStockList');
+        alertList.innerHTML = '';
+        lowStockItems.forEach(p => {
+            const li = document.createElement('li');
+            li.textContent = `${p.name} (SKU: ${p.sku}) - Stock: ${p.quantity} / Min: ${p.minStock}`;
+            alertList.appendChild(li);
+        });
+
+        // Update Chart Displays
+        renderCharts(filtered);
+    }
+
+    // 6. Bind Input Controls
+    ['searchInput', 'categoryFilter', 'stockFilter', 'minPrice', 'maxPrice'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.addEventListener('input', updateDashboard);
+    });
+
+    // Reset Filters Button
+    const resetBtn = document.getElementById('resetFilters');
+    if (resetBtn) {
+        resetBtn.addEventListener('click', () => {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('categoryFilter').value = 'All';
+            document.getElementById('stockFilter').value = 'All';
+            document.getElementById('minPrice').value = '';
+            document.getElementById('maxPrice').value = '';
+            updateDashboard();
+        });
+    }
+
+    // Export Button
+    const exportBtn = document.getElementById('exportBtn');
+    if (exportBtn) {
+        exportBtn.addEventListener('click', () => {
+            const search = document.getElementById('searchInput').value;
+            const category = document.getElementById('categoryFilter').value;
+            const stockStatus = document.getElementById('stockFilter').value;
+            const minPrice = parseFloat(document.getElementById('minPrice').value);
+            const maxPrice = parseFloat(document.getElementById('maxPrice').value);
+
+            const filtered = DataManager.getFilteredProducts(search, category, stockStatus, minPrice, maxPrice);
+            DataManager.exportToCSV(filtered);
+        });
+    }
+
+    // Live Data Simulation Toggle
+    const simToggle = document.getElementById('liveSimulationToggle');
+    if (simToggle) {
+        simToggle.addEventListener('change', (e) => {
+            if (e.target.checked) {
+                simulationInterval = setInterval(() => {
+                    const randomIndex = Math.floor(Math.random() * DataManager.products.length);
+                    const change = Math.floor(Math.random() * 5) - 2;
+                    DataManager.products[randomIndex].quantity = Math.max(0, DataManager.products[randomIndex].quantity + change);
+                    updateDashboard();
+                }, 3000);
+            } else {
+                clearInterval(simulationInterval);
+            }
+        });
+    }
+
+    // Initial Dashboard Execution
+    updateDashboard();
+});
