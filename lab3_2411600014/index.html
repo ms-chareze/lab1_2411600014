@@ -9,12 +9,12 @@
     <!-- Custom CSS-->
     <link rel="stylesheet" href="css/style.css">
 </head>
-<body>
+<body class="login-page">
     <!-- Login content goes here-->
     <div class="container d-flex justify-content-center align-items-center min-vh-100">
-        <div class="card shadow-lg" style="max-width: 400px; width: 100%;">
+        <div class="card login-card" style="max-width: 400px; width: 100%;">
             
-            <!-- Step 2 & Step 4: Card Header with Custom Branding -->
+            <!-- Card Header with Custom Branding -->
             <div class="card-header bg-primary text-white text-center py-4">
                 <h2 class="mb-0">Student Grade Portal</h2>
                 <p class="mb-0 small">Login to your dashboard</p>
@@ -34,7 +34,6 @@
                         <label for="password" class="form-label">Password</label>
                         <input type="password" class="form-control" id="password" placeholder="Enter password" required>
                     </div>
-                    <!-- type="button" prevents page reload for JS handling -->
                     <button type="button" class="btn btn-primary w-100" id="loginBtn">Login</button>
                 </form>
             </div>
