@@ -2,6 +2,7 @@
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 $products = [
+    
     [
         "sku" => "PROD-001",
         "name" => "Wireless Ergonomic Mouse",
