@@ -3,57 +3,62 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Academic Student Portal - Dashboard</title>
+    <title>Dashboard - Student Grade Portal</title>
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Chart.js Library -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Custom CSS (Added for Lab 4 Screenshot 5 requirement) -->
+    <!-- Custom CSS -->
     <link rel="stylesheet" href="css/style.css">
 </head>
-<body class="bg-light">
+<body>
 
-    <!-- Top Navigation Bar -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div class="container-fluid">
-            <a class="navbar-brand fw-bold" href="#">Academic Student Portal</a>
+    <!-- Top Purple Navbar (Lab 3 Header Style) -->
+    <nav class="navbar navbar-expand-lg bg-gradient-primary navbar-dark px-4 py-2">
+        <div class="container-fluid p-0">
+            <a class="navbar-brand fw-bold fs-4" href="#">Student Grade Portal</a>
             <div class="d-flex align-items-center text-white">
-                <span id="welcomeUser" class="me-3 fw-semibold">Welcome, Admin</span>
-                <button class="btn btn-outline-light btn-sm" id="logoutBtn">Logout</button>
+                <span id="welcomeUser" class="me-3 fw-semibold">Welcome, admin</span>
+                <button class="btn btn-outline-light btn-sm px-3" id="logoutBtn">Logout</button>
             </div>
         </div>
     </nav>
 
-    <div class="container-fluid my-4">
+    <div class="container-fluid">
         <div class="row">
             
-            <!-- Sidebar Controls -->
-            <div class="col-lg-3 mb-4">
-                <div class="card shadow-sm border-0 mb-3">
-                    <div class="card-body">
-                        <h5 class="card-title fw-bold mb-3">Simulation & Tools</h5>
-                        <div class="form-check form-switch mb-3">
-                            <input class="form-check-input" type="checkbox" id="liveSimulationToggle">
-                            <label class="form-check-label fw-semibold" for="liveSimulationToggle">Live Simulation Data</label>
-                        </div>
-                        <button class="btn btn-success w-100 fw-bold" id="exportBtn">Export to CSV</button>
-                    </div>
+            <!-- Left Navigation Sidebar (Lab 3 Layout) -->
+            <div class="col-md-2 min-vh-100 sidebar p-3">
+                <div class="nav flex-column nav-pills">
+                    <a class="nav-link active fw-semibold mb-2" href="#">Dashboard</a>
+                    <a class="nav-link text-muted fw-semibold mb-2" href="#">Profile</a>
+                    <a class="nav-link text-muted fw-semibold mb-2" href="#">Settings</a>
+                    <a class="nav-link text-danger fw-semibold mt-4" href="#" id="sidebarLogout">Logout</a>
                 </div>
             </div>
 
-            <!-- Main Dashboard Area -->
-            <div class="col-lg-9">
+            <!-- Main Lab 4 Dashboard Content Area -->
+            <div class="col-md-10 p-4">
                 
-                <!-- Filter & Search Controls Card -->
-                <div class="card shadow-sm p-3 mb-4 border-0">
-                    <div class="row g-3">
-                        <div class="col-md-4">
-                            <label for="searchInput" class="form-label small">Search Student</label>
-                            <input type="text" id="searchInput" class="form-control" placeholder="Search by name or ID...">
+                <h2 class="fw-bold mb-4" style="color: var(--theme-text);">Good Night, admin!</h2>
+
+                <!-- Simulation & Filters Toolbar Card -->
+                <div class="card shadow-sm border-0 mb-4 p-3 bg-white rounded-3">
+                    <div class="row g-3 align-items-end">
+                        <div class="col-md-3">
+                            <div class="form-check form-switch mt-2">
+                                <input class="form-check-input" type="checkbox" id="liveSimulationToggle">
+                                <label class="form-check-label fw-bold small text-muted" for="liveSimulationToggle">Live Simulation Data</label>
+                            </div>
+                            <button class="btn btn-success btn-sm w-100 mt-2 fw-semibold" id="exportBtn">Export to CSV</button>
                         </div>
                         <div class="col-md-3">
-                            <label for="courseFilter" class="form-label small">Filter Course</label>
-                            <select id="courseFilter" class="form-select">
+                            <label for="searchInput" class="form-label small mb-1">Search Student</label>
+                            <input type="text" id="searchInput" class="form-control form-control-sm" placeholder="Search by name or ID...">
+                        </div>
+                        <div class="col-md-2">
+                            <label for="courseFilter" class="form-label small mb-1">Filter Course</label>
+                            <select id="courseFilter" class="form-select form-select-sm">
                                 <option value="All">All Courses</option>
                                 <option value="BS Information Technology">BS Information Technology</option>
                                 <option value="BS Computer Science">BS Computer Science</option>
@@ -61,51 +66,59 @@
                                 <option value="BS Office Administration">BS Office Administration</option>
                             </select>
                         </div>
-                        <div class="col-md-3">
-                            <label for="statusFilter" class="form-label small">Filter Status</label>
-                            <select id="statusFilter" class="form-select">
+                        <div class="col-md-2">
+                            <label for="statusFilter" class="form-label small mb-1">Filter Status</label>
+                            <select id="statusFilter" class="form-select form-select-sm">
                                 <option value="All">All Statuses</option>
                                 <option value="Regular">Regular</option>
                                 <option value="Warning">Warning</option>
                                 <option value="Probation">Probation</option>
                             </select>
                         </div>
-                        <div class="col-md-2 d-flex align-items-end">
-                            <button class="btn btn-outline-secondary w-100" id="resetFilters">Reset</button>
+                        <div class="col-md-2">
+                            <button class="btn btn-outline-secondary btn-sm w-100" id="resetFilters">Reset</button>
                         </div>
                     </div>
                 </div>
 
-                <!-- Metrics Display Cards -->
+                <!-- 4 Metrics Display Cards (Lab 3 Stat Card Design) -->
                 <div class="row text-center mb-4 g-3">
                     <div class="col-md-3">
-                        <div class="card shadow-sm border-0 bg-white p-3">
-                            <div class="text-muted small">Total Students</div>
-                            <div class="fs-3 fw-bold text-primary" id="totalStudents">0</div>
+                        <div class="card stat-card shadow-sm border-0 bg-white border-primary-custom">
+                            <div class="card-body">
+                                <div class="card-title text-muted fw-bold">Total Students</div>
+                                <div class="card-text fw-bold text-primary-custom" id="totalStudents">0</div>
+                            </div>
                         </div>
                     </div>
                     <div class="col-md-3">
-                        <div class="card shadow-sm border-0 bg-white p-3">
-                            <div class="text-muted small">Average GPA</div>
-                            <div class="fs-3 fw-bold text-success" id="averageGPA">0.00</div>
+                        <div class="card stat-card shadow-sm border-0 bg-white border-success-custom">
+                            <div class="card-body">
+                                <div class="card-title text-muted fw-bold">Average GPA</div>
+                                <div class="card-text fw-bold text-success" id="averageGPA">0.00</div>
+                            </div>
                         </div>
                     </div>
                     <div class="col-md-3">
-                        <div class="card shadow-sm border-0 bg-white p-3">
-                            <div class="text-muted small">Academic Warnings</div>
-                            <div class="fs-3 fw-bold text-danger" id="academicWarnings">0</div>
+                        <div class="card stat-card shadow-sm border-0 bg-white border-accent">
+                            <div class="card-body">
+                                <div class="card-title text-muted fw-bold">Academic Warnings</div>
+                                <div class="card-text fw-bold text-danger" id="academicWarnings">0</div>
+                            </div>
                         </div>
                     </div>
                     <div class="col-md-3">
-                        <div class="card shadow-sm border-0 bg-white p-3">
-                            <div class="text-muted small">Total Units</div>
-                            <div class="fs-3 fw-bold text-dark" id="totalUnits">0</div>
+                        <div class="card stat-card shadow-sm border-0 bg-white border-primary-custom">
+                            <div class="card-body">
+                                <div class="card-title text-muted fw-bold">Total Units</div>
+                                <div class="card-text fw-bold style-dark" id="totalUnits" style="color: var(--theme-text);">0</div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Academic Alert Box -->
-                <div id="academicWarningAlert" class="alert alert-danger d-none shadow-sm mb-4" role="alert">
+                <div id="academicWarningAlert" class="alert alert-danger d-none shadow-sm mb-4 border-0" role="alert">
                     <h6 class="alert-heading fw-bold">Academic Warning Alert (<span id="warningCountText">0</span> Students Needing Review)</h6>
                     <ul id="warningList" class="mb-0 small"></ul>
                 </div>
@@ -114,7 +127,7 @@
                 <div class="row mb-4 g-3">
                     <div class="col-md-4">
                         <div class="card shadow-sm border-0 p-3 h-100">
-                            <h6 class="fw-bold mb-3">Course Distribution</h6>
+                            <h6 class="fw-bold mb-3" style="color: var(--theme-text);">Course Distribution</h6>
                             <div class="chart-container" style="height: 200px;">
                                 <canvas id="courseChart"></canvas>
                             </div>
@@ -122,7 +135,7 @@
                     </div>
                     <div class="col-md-4">
                         <div class="card shadow-sm border-0 p-3 h-100">
-                            <h6 class="fw-bold mb-3">Academic Status</h6>
+                            <h6 class="fw-bold mb-3" style="color: var(--theme-text);">Academic Status</h6>
                             <div class="chart-container" style="height: 200px;">
                                 <canvas id="statusChart"></canvas>
                             </div>
@@ -130,7 +143,7 @@
                     </div>
                     <div class="col-md-4">
                         <div class="card shadow-sm border-0 p-3 h-100">
-                            <h6 class="fw-bold mb-3">Top Performing GPA</h6>
+                            <h6 class="fw-bold mb-3" style="color: var(--theme-text);">Top Performing GPA</h6>
                             <div class="chart-container" style="height: 200px;">
                                 <canvas id="topStudentsChart"></canvas>
                             </div>
@@ -138,19 +151,19 @@
                     </div>
                 </div>
 
-                <!-- Student Records Data Table -->
+                <!-- Student Records Data Table (Lab 3 Styled Header) -->
                 <div class="card shadow-sm border-0">
                     <div class="card-body p-0">
                         <div class="table-responsive">
                             <table class="table table-hover align-middle mb-0">
-                                <thead class="table-dark">
-                                    <tr>
-                                        <th>Student ID</th>
-                                        <th>Name</th>
-                                        <th>Course</th>
-                                        <th>GPA</th>
-                                        <th>Units</th>
-                                        <th>Status</th>
+                                <thead>
+                                    <tr style="background-color: var(--theme-text); color: #ffffff;">
+                                        <th class="py-3 px-3">Student ID</th>
+                                        <th class="py-3">Name</th>
+                                        <th class="py-3">Course</th>
+                                        <th class="py-3">GPA</th>
+                                        <th class="py-3">Units</th>
+                                        <th class="py-3">Status</th>
                                     </tr>
                                 </thead>
                                 <tbody id="studentTableBody">
@@ -165,7 +178,7 @@
         </div>
     </div>
 
-    <!-- Project JavaScript Source Files -->
+    <!-- JavaScript Source Files -->
     <script src="js/dataManager.js"></script>
     <script src="js/dashboard.js"></script>
 </body>
