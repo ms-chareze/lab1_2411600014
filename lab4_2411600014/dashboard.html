@@ -3,92 +3,66 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - Student Portal</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>Academic Student Portal - Dashboard</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Chart.js Library -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Custom CSS (Added for Lab 4 Screenshot 5 requirement) -->
+    <link rel="stylesheet" href="css/style.css">
 </head>
-<body>
+<body class="bg-light">
 
-    <nav class="navbar navbar-expand-lg navbar-dark px-3" style="background-color: #9d80e4;">
-        <a class="navbar-brand fw-bold text-white" href="#">Student Information Portal</a>
-        <div class="ms-auto d-flex align-items-center gap-3">
-            <span class="text-white" id="welcomeUser">Welcome, admin</span>
-            <button class="btn btn-sm btn-outline-light" id="logoutBtn">Logout</button>
+    <!-- Top Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand fw-bold" href="#">Academic Student Portal</a>
+            <div class="d-flex align-items-center text-white">
+                <span id="welcomeUser" class="me-3 fw-semibold">Welcome, Admin</span>
+                <button class="btn btn-outline-light btn-sm" id="logoutBtn">Logout</button>
+            </div>
         </div>
     </nav>
 
-    <div class="container-fluid">
+    <div class="container-fluid my-4">
         <div class="row">
-            <nav class="col-md-3 col-lg-2 d-md-block sidebar vh-100 p-3 bg-white border-end">
-                <div class="position-sticky pt-2">
-                    <ul class="nav flex-column gap-2">
-                        <li class="nav-item">
-                            <a class="nav-link active rounded p-2 text-white fw-bold" style="background-color: #9d80e4;" href="dashboard.html">Dashboard</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link rounded p-2 fw-bold" style="color: #641246;" href="#" id="sidebarLogout">Logout</a>
-                        </li>
-                    </ul>
-                </div>
-            </nav>
-
-            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 py-4" style="background-color: #fff0f5;">
-
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h2 class="fw-bold" style="color: #641246;">Academic Analytics & Student Records</h2>
-                    <div class="form-check form-switch">
-                        <input class="form-check-input" type="checkbox" id="liveSimulationToggle">
-                        <label class="form-check-label fw-bold" style="color: #641246;" for="liveSimulationToggle">Live Sync Simulation</label>
+            
+            <!-- Sidebar Controls -->
+            <div class="col-lg-3 mb-4">
+                <div class="card shadow-sm border-0 mb-3">
+                    <div class="card-body">
+                        <h5 class="card-title fw-bold mb-3">Simulation & Tools</h5>
+                        <div class="form-check form-switch mb-3">
+                            <input class="form-check-input" type="checkbox" id="liveSimulationToggle">
+                            <label class="form-check-label fw-semibold" for="liveSimulationToggle">Live Simulation Data</label>
+                        </div>
+                        <button class="btn btn-success w-100 fw-bold" id="exportBtn">Export to CSV</button>
                     </div>
                 </div>
+            </div>
 
-                <div id="academicWarningAlert" class="alert alert-warning alert-dismissible fade show d-none" role="alert">
-                    <strong>Academic Alert!</strong> <span id="warningCountText">0</span> student(s) currently require academic review.
-                    <ul id="warningList" class="mb-0 mt-2"></ul>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-
-                <div class="row text-center mb-4 g-3">
-                    <div class="col-md-3">
-                        <div class="card shadow-sm p-3 border-0">
-                            <span class="small fw-bold text-uppercase" style="color: #641246;">TOTAL STUDENTS</span>
-                            <h3 class="fw-bold mb-0" style="color: #9d80e4;" id="totalStudents">0</h3>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="card shadow-sm p-3 border-0">
-                            <span class="small fw-bold text-uppercase" style="color: #641246;">AVERAGE GPA</span>
-                            <h3 class="fw-bold mb-0 text-success" id="averageGPA">0.00</h3>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="card shadow-sm p-3 border-0">
-                            <span class="small fw-bold text-uppercase" style="color: #641246;">ACADEMIC WARNINGS</span>
-                            <h3 class="fw-bold mb-0 text-danger" id="academicWarnings">0</h3>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="card shadow-sm p-3 border-0">
-                            <span class="small fw-bold text-uppercase" style="color: #641246;">TOTAL ENROLLED UNITS</span>
-                            <h3 class="fw-bold mb-0 text-info" id="totalUnits">0</h3>
-                        </div>
-                    </div>
-                </div>
-
+            <!-- Main Dashboard Area -->
+            <div class="col-lg-9">
+                
+                <!-- Filter & Search Controls Card -->
                 <div class="card shadow-sm p-3 mb-4 border-0">
                     <div class="row g-3">
                         <div class="col-md-4">
-                            <label for="courseFilter" class="form-label small fw-bold" style="color: #641246;">Course / Program Filter</label>
+                            <label for="searchInput" class="form-label small">Search Student</label>
+                            <input type="text" id="searchInput" class="form-control" placeholder="Search by name or ID...">
+                        </div>
+                        <div class="col-md-3">
+                            <label for="courseFilter" class="form-label small">Filter Course</label>
                             <select id="courseFilter" class="form-select">
                                 <option value="All">All Courses</option>
-                                <option value="BS Office Administration">BS Office Administration</option>
                                 <option value="BS Information Technology">BS Information Technology</option>
                                 <option value="BS Computer Science">BS Computer Science</option>
                                 <option value="BS Business Administration">BS Business Administration</option>
+                                <option value="BS Office Administration">BS Office Administration</option>
                             </select>
                         </div>
-                        <div class="col-md-4">
-                            <label for="statusFilter" class="form-label small fw-bold" style="color: #641246;">Academic Status Filter</label>
+                        <div class="col-md-3">
+                            <label for="statusFilter" class="form-label small">Filter Status</label>
                             <select id="statusFilter" class="form-select">
                                 <option value="All">All Statuses</option>
                                 <option value="Regular">Regular</option>
@@ -96,67 +70,102 @@
                                 <option value="Probation">Probation</option>
                             </select>
                         </div>
-                        <div class="col-md-4 d-flex align-items-end">
-                            <button class="btn btn-outline-secondary w-100" id="resetFilters">Reset Filters</button>
+                        <div class="col-md-2 d-flex align-items-end">
+                            <button class="btn btn-outline-secondary w-100" id="resetFilters">Reset</button>
                         </div>
                     </div>
                 </div>
 
+                <!-- Metrics Display Cards -->
+                <div class="row text-center mb-4 g-3">
+                    <div class="col-md-3">
+                        <div class="card shadow-sm border-0 bg-white p-3">
+                            <div class="text-muted small">Total Students</div>
+                            <div class="fs-3 fw-bold text-primary" id="totalStudents">0</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card shadow-sm border-0 bg-white p-3">
+                            <div class="text-muted small">Average GPA</div>
+                            <div class="fs-3 fw-bold text-success" id="averageGPA">0.00</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card shadow-sm border-0 bg-white p-3">
+                            <div class="text-muted small">Academic Warnings</div>
+                            <div class="fs-3 fw-bold text-danger" id="academicWarnings">0</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card shadow-sm border-0 bg-white p-3">
+                            <div class="text-muted small">Total Units</div>
+                            <div class="fs-3 fw-bold text-dark" id="totalUnits">0</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Academic Alert Box -->
+                <div id="academicWarningAlert" class="alert alert-danger d-none shadow-sm mb-4" role="alert">
+                    <h6 class="alert-heading fw-bold">Academic Warning Alert (<span id="warningCountText">0</span> Students Needing Review)</h6>
+                    <ul id="warningList" class="mb-0 small"></ul>
+                </div>
+
+                <!-- Visual Charts Section -->
                 <div class="row mb-4 g-3">
-                    <div class="col-md-7">
-                        <div class="card shadow-sm p-3 border-0">
-                            <h6 class="fw-bold" style="color: #641246;">Student Distribution by Course</h6>
-                            <div class="chart-container" style="position: relative; height:250px;">
+                    <div class="col-md-4">
+                        <div class="card shadow-sm border-0 p-3 h-100">
+                            <h6 class="fw-bold mb-3">Course Distribution</h6>
+                            <div class="chart-container" style="height: 200px;">
                                 <canvas id="courseChart"></canvas>
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-5">
-                        <div class="card shadow-sm p-3 border-0">
-                            <h6 class="fw-bold" style="color: #641246;">Academic Status Distribution</h6>
-                            <div class="chart-container" style="position: relative; height:250px;">
+                    <div class="col-md-4">
+                        <div class="card shadow-sm border-0 p-3 h-100">
+                            <h6 class="fw-bold mb-3">Academic Status</h6>
+                            <div class="chart-container" style="height: 200px;">
                                 <canvas id="statusChart"></canvas>
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-12">
-                        <div class="card shadow-sm p-3 border-0">
-                            <h6 class="fw-bold" style="color: #641246;">Top Performing Students by GPA</h6>
-                            <div class="chart-container" style="position: relative; height:220px;">
+                    <div class="col-md-4">
+                        <div class="card shadow-sm border-0 p-3 h-100">
+                            <h6 class="fw-bold mb-3">Top Performing GPA</h6>
+                            <div class="chart-container" style="height: 200px;">
                                 <canvas id="topStudentsChart"></canvas>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <input type="text" id="searchInput" class="form-control w-25" placeholder="Search by name or Student ID...">
-                    <button class="btn btn-success fw-bold" id="exportBtn" style="background-color: #198754;">Export to CSV</button>
-                </div>
-
-                <div class="card shadow-sm p-3 border-0">
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle" id="studentTable">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>Student ID</th>
-                                    <th>Name</th>
-                                    <th>Course</th>
-                                    <th>GPA</th>
-                                    <th>Enrolled Units</th>
-                                    <th>Status</th>
-                                </tr>
-                            </thead>
-                            <tbody id="studentTableBody"></tbody>
-                        </table>
+                <!-- Student Records Data Table -->
+                <div class="card shadow-sm border-0">
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>Student ID</th>
+                                        <th>Name</th>
+                                        <th>Course</th>
+                                        <th>GPA</th>
+                                        <th>Units</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="studentTableBody">
+                                    <!-- Dynamic Rows Rendered by JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
 
-            </main>
+            </div>
         </div>
     </div>
- 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Project JavaScript Source Files -->
     <script src="js/dataManager.js"></script>
     <script src="js/dashboard.js"></script>
 </body>

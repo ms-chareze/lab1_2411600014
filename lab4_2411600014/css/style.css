@@ -1,0 +1,26 @@
+/* Custom Interactive & UI Styling */
+
+.form-label {
+    color: #641246;
+    font-weight: 600;
+}
+
+#exportBtn {
+    background-color: #198754;
+    transition: all 0.2s ease-in-out;
+}
+
+#exportBtn:hover {
+    background-color: #146c43;
+    transform: translateY(-2px);
+}
+
+.table-hover tbody tr:hover {
+    background-color: rgba(100, 18, 70, 0.05);
+    cursor: pointer;
+}
+
+.chart-container {
+    position: relative;
+    border-radius: 8px;
+}
