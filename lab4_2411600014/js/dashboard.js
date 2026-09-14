@@ -49,7 +49,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
             const tr = document.createElement("tr");
             tr.innerHTML = `
-                <td class="fw-bold">${s.studentId}</td>
+                <td class="fw-bold px-3">${s.studentId}</td>
                 <td>${s.name}</td>
                 <td>${s.course}</td>
                 <td class="fw-bold">${s.gpa.toFixed(2)}</td>
@@ -76,24 +76,25 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     function initCharts() {
+        // Chart colors using Lab 3 purple palette
         const ctxCourse = document.getElementById("courseChart").getContext("2d");
         courseChart = new Chart(ctxCourse, {
             type: 'bar',
-            data: { labels: [], datasets: [{ label: 'Enrolled Students', data: [], backgroundColor: '#9d80e4' }] },
+            data: { labels: [], datasets: [{ label: 'Enrolled Students', data: [], backgroundColor: '#A084DC' }] },
             options: { responsive: true, maintainAspectRatio: false }
         });
 
         const ctxStatus = document.getElementById("statusChart").getContext("2d");
         statusChart = new Chart(ctxStatus, {
             type: 'doughnut',
-            data: { labels: [], datasets: [{ data: [], backgroundColor: ['#198754', '#ffc107', '#dc3545'] }] },
+            data: { labels: [], datasets: [{ data: [], backgroundColor: ['#28a745', '#F9B2D7', '#dc3545'] }] },
             options: { responsive: true, maintainAspectRatio: false }
         });
 
         const ctxTop = document.getElementById("topStudentsChart").getContext("2d");
         topStudentsChart = new Chart(ctxTop, {
             type: 'bar',
-            data: { labels: [], datasets: [{ label: 'GPA', data: [], backgroundColor: '#641246' }] },
+            data: { labels: [], datasets: [{ label: 'GPA', data: [], backgroundColor: '#612D53' }] },
             options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, scales: { x: { max: 4.0 } } }
         });
     }
@@ -165,4 +166,4 @@ document.addEventListener("DOMContentLoaded", async () => {
             }
         });
     }
-}); 
+});
