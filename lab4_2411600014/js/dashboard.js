@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", async () => {
-    const loggedUser = localStorage.getItem("loggedInUser") || "admin";
+    const loggedUser = localStorage.getItem("user") || "admin";
     if (document.getElementById("welcomeUser")) {
         document.getElementById("welcomeUser").textContent = `Welcome, ${loggedUser}`;
     }
@@ -138,7 +138,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
 
         const handleLogout = () => {
-            localStorage.removeItem("loggedInUser");
+            localStorage.removeItem("user");
+            localStorage.removeItem("isLoggedIn");
             window.location.href = "index.html";
         };
         document.getElementById("logoutBtn")?.addEventListener("click", handleLogout);
@@ -164,4 +165,4 @@ document.addEventListener("DOMContentLoaded", async () => {
             }
         });
     }
-});
+}); 

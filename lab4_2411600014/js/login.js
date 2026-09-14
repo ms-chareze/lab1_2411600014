@@ -6,14 +6,24 @@ document.addEventListener("DOMContentLoaded", () => {
         
         const usernameInput = document.getElementById("username").value.trim();
         const passwordInput = document.getElementById("password").value.trim();
+        const alertBox = document.getElementById("loginAlert");
 
-        if (usernameInput !== "" && passwordInput !== "") {
-            localStorage.setItem("loggedInUser", usernameInput);
+        // Enforcing Lab 3 credentials
+        const validUsername = "admin";
+        const validPassword = "password123";
+
+        if (usernameInput === validUsername && passwordInput === validPassword) {
+            localStorage.setItem("isLoggedIn", "true");
+            localStorage.setItem("user", usernameInput);
+            
+            if (alertBox) {
+                alertBox.classList.add("d-none");
+            }
+
             window.location.href = "dashboard.html";
         } else {
-            const alertBox = document.getElementById("loginAlert");
             if (alertBox) {
-                alertBox.textContent = "Please enter both username and password.";
+                alertBox.textContent = "Invalid username or password. Use 'admin' and 'password123'.";
                 alertBox.classList.remove("d-none");
             }
         }
