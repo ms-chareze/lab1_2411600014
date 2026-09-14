@@ -1,232 +1,167 @@
-let categoryChartInstance = null;
-let statusChartInstance = null;
-let topProductsChartInstance = null;
-let simulationInterval = null;
-
-document.addEventListener('DOMContentLoaded', async () => {
-    // 1. Session & Welcome Header
-    const currentUser = localStorage.getItem('currentUser') || 'admin';
-    const welcomeUserEl = document.getElementById('welcomeUser');
-    const greetingHeaderEl = document.getElementById('greetingHeader');
-
-    if (welcomeUserEl) welcomeUserEl.textContent = `Welcome, ${currentUser}`;
-    if (greetingHeaderEl) greetingHeaderEl.textContent = `Good Evening, ${currentUser}!`;
-
-    // 2. Working Logout Redirects
-    const handleLogout = (e) => {
-        e.preventDefault();
-        localStorage.removeItem('currentUser');
-        window.location.href = 'index.html';
-    };
-
-    const logoutBtn = document.getElementById('logoutBtn');
-    const sidebarLogout = document.getElementById('sidebarLogout');
-    if (logoutBtn) logoutBtn.addEventListener('click', handleLogout);
-    if (sidebarLogout) sidebarLogout.addEventListener('click', handleLogout);
-
-    // 3. Load product dataset
-    await DataManager.loadProducts();
-
-    // Helper: Highlight matching search terms
-    function highlightText(text, query) {
-        if (!query) return text;
-        const regex = new RegExp(`(${query})`, 'gi');
-        return text.replace(regex, '<mark class="p-0 bg-warning">$1</mark>');
+document.addEventListener("DOMContentLoaded", async () => {
+    const loggedUser = localStorage.getItem("loggedInUser") || "admin";
+    if (document.getElementById("welcomeUser")) {
+        document.getElementById("welcomeUser").textContent = `Welcome, ${loggedUser}`;
     }
 
-    // 4. Render Chart.js
-    function renderCharts(filteredProducts) {
-        // Chart 1: Value by Category
-        const categoryValues = {};
-        filteredProducts.forEach(p => {
-            categoryValues[p.category] = (categoryValues[p.category] || 0) + (p.price * p.quantity);
-        });
+    await DataManager.loadStudents();
 
-        const categoryCtx = document.getElementById('categoryChart').getContext('2d');
-        if (categoryChartInstance) categoryChartInstance.destroy();
-        categoryChartInstance = new Chart(categoryCtx, {
-            type: 'bar',
-            data: {
-                labels: Object.keys(categoryValues),
-                datasets: [{
-                    label: 'Value ($)',
-                    data: Object.values(categoryValues),
-                    backgroundColor: '#9d80e4'
-                }]
-            },
-            options: { responsive: true, maintainAspectRatio: false }
-        });
+    let courseChart, statusChart, topStudentsChart;
 
-        // Chart 2: Stock Status Distribution
-        const statusCounts = { "In Stock": 0, "Low Stock": 0, "Out of Stock": 0 };
-        filteredProducts.forEach(p => {
-            const status = DataManager.getStatus(p.quantity, p.minStock);
-            statusCounts[status]++;
-        });
+    initCharts();
+    renderDashboard();
+    setupEventListeners();
 
-        const statusCtx = document.getElementById('statusChart').getContext('2d');
-        if (statusChartInstance) statusChartInstance.destroy();
-        statusChartInstance = new Chart(statusCtx, {
-            type: 'pie',
-            data: {
-                labels: Object.keys(statusCounts),
-                datasets: [{
-                    data: Object.values(statusCounts),
-                    backgroundColor: ['#198754', '#ffc107', '#dc3545']
-                }]
-            },
-            options: { responsive: true, maintainAspectRatio: false }
-        });
+    function renderDashboard() {
+        const searchQuery = document.getElementById("searchInput")?.value || "";
+        const courseValue = document.getElementById("courseFilter")?.value || "All";
+        const statusValue = document.getElementById("statusFilter")?.value || "All";
 
-        // Chart 3: Top 5 Products by Total Value
-        const sortedProducts = [...filteredProducts]
-            .sort((a, b) => (b.price * b.quantity) - (a.price * a.quantity))
-            .slice(0, 5);
+        const filteredData = DataManager.filterStudents(searchQuery, courseValue, statusValue);
 
-        const topCtx = document.getElementById('topProductsChart').getContext('2d');
-        if (topProductsChartInstance) topProductsChartInstance.destroy();
-        topProductsChartInstance = new Chart(topCtx, {
-            type: 'bar',
-            data: {
-                labels: sortedProducts.map(p => p.name),
-                datasets: [{
-                    label: 'Total Value ($)',
-                    data: sortedProducts.map(p => p.price * p.quantity),
-                    backgroundColor: '#641246'
-                }]
-            },
-            options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false }
-        });
+        updateMetrics();
+        renderTable(filteredData);
+        renderAlerts();
+        updateCharts(filteredData);
     }
 
-    // 5. Update UI Stats, Table & Low Stock Alerts
-    function updateDashboard() {
-        const search = document.getElementById('searchInput').value;
-        const category = document.getElementById('categoryFilter').value;
-        const stockStatus = document.getElementById('stockFilter').value;
-        const minPrice = parseFloat(document.getElementById('minPrice').value);
-        const maxPrice = parseFloat(document.getElementById('maxPrice').value);
+    function updateMetrics() {
+        const stats = DataManager.getStatistics();
+        document.getElementById("totalStudents").textContent = stats.totalStudents;
+        document.getElementById("averageGPA").textContent = stats.avgGPA;
+        document.getElementById("academicWarnings").textContent = stats.academicWarnings;
+        document.getElementById("totalUnits").textContent = stats.totalUnits;
+    }
 
-        const filtered = DataManager.getFilteredProducts(search, category, stockStatus, minPrice, maxPrice);
+    function renderTable(data) {
+        const tbody = document.getElementById("studentTableBody");
+        tbody.innerHTML = "";
 
-        // Update Key Metrics Cards
-        let totalVal = 0;
-        let totalQty = 0;
-        let lowStockCount = 0;
+        if (data.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="6" class="text-center py-3 text-muted">No student records found matching filter criteria.</td></tr>`;
+            return;
+        }
 
-        filtered.forEach(p => {
-            totalVal += p.price * p.quantity;
-            totalQty += p.quantity;
-            if (p.quantity <= p.minStock) lowStockCount++;
-        });
+        data.forEach(s => {
+            let statusBadge = 'bg-success';
+            if (s.status === 'Warning') statusBadge = 'bg-warning text-dark';
+            if (s.status === 'Probation') statusBadge = 'bg-danger';
 
-        document.getElementById('totalProducts').textContent = filtered.length;
-        document.getElementById('totalValue').textContent = `$${totalVal.toFixed(2)}`;
-        document.getElementById('lowStockAlerts').textContent = lowStockCount;
-        document.getElementById('totalQuantity').textContent = totalQty;
-
-        // Render Data Table
-        const tbody = document.getElementById('inventoryTableBody');
-        tbody.innerHTML = '';
-        filtered.forEach(p => {
-            const status = DataManager.getStatus(p.quantity, p.minStock);
-            let badgeClass = 'bg-success';
-            let rowClass = '';
-
-            // Highlight low stock / out of stock rows in table
-            if (status === 'Low Stock') {
-                badgeClass = 'bg-warning text-dark';
-                rowClass = 'table-warning';
-            } else if (status === 'Out of Stock') {
-                badgeClass = 'bg-danger';
-                rowClass = 'table-danger';
-            }
-
-            const tr = document.createElement('tr');
-            if (rowClass) tr.classList.add(rowClass);
-
-            // Highlight search matching text in SKU and Name
-            const highlightedSku = highlightText(p.sku, search);
-            const highlightedName = highlightText(p.name, search);
-
+            const tr = document.createElement("tr");
             tr.innerHTML = `
-                <td>${highlightedSku}</td>
-                <td>${highlightedName}</td>
-                <td>${p.category}</td>
-                <td>$${p.price.toFixed(2)}</td>
-                <td>${p.quantity}</td>
-                <td><span class="badge ${badgeClass}">${status}</span></td>
-                <td>$${(p.price * p.quantity).toFixed(2)}</td>
+                <td class="fw-bold">${s.studentId}</td>
+                <td>${s.name}</td>
+                <td>${s.course}</td>
+                <td class="fw-bold">${s.gpa.toFixed(2)}</td>
+                <td>${s.enrolledUnits}</td>
+                <td><span class="badge ${statusBadge}">${s.status}</span></td>
             `;
             tbody.appendChild(tr);
         });
-
-        // Update Low Stock Banner List
-        const lowStockItems = DataManager.products.filter(p => p.quantity <= p.minStock);
-        document.getElementById('lowStockCountText').textContent = lowStockItems.length;
-        const alertList = document.getElementById('lowStockList');
-        alertList.innerHTML = '';
-        lowStockItems.forEach(p => {
-            const li = document.createElement('li');
-            li.textContent = `${p.name} (SKU: ${p.sku}) - Stock: ${p.quantity} / Min: ${p.minStock}`;
-            alertList.appendChild(li);
-        });
-
-        // Update Chart Displays
-        renderCharts(filtered);
     }
 
-    // 6. Bind Input Controls
-    ['searchInput', 'categoryFilter', 'stockFilter', 'minPrice', 'maxPrice'].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.addEventListener('input', updateDashboard);
-    });
+    function renderAlerts() {
+        const warningStudents = DataManager.getStudents().filter(s => s.status === 'Warning' || s.status === 'Probation');
+        const alertBox = document.getElementById("academicWarningAlert");
+        const alertList = document.getElementById("warningList");
+        const alertCount = document.getElementById("warningCountText");
 
-    // Reset Filters Button
-    const resetBtn = document.getElementById('resetFilters');
-    if (resetBtn) {
-        resetBtn.addEventListener('click', () => {
-            document.getElementById('searchInput').value = '';
-            document.getElementById('categoryFilter').value = 'All';
-            document.getElementById('stockFilter').value = 'All';
-            document.getElementById('minPrice').value = '';
-            document.getElementById('maxPrice').value = '';
-            updateDashboard();
+        if (warningStudents.length > 0) {
+            alertBox.classList.remove("d-none");
+            alertCount.textContent = warningStudents.length;
+            alertList.innerHTML = warningStudents.map(s => `<li><strong>${s.name}</strong> (${s.course}) - GPA: ${s.gpa.toFixed(2)} [${s.status}]</li>`).join('');
+        } else {
+            alertBox.classList.add("d-none");
+        }
+    }
+
+    function initCharts() {
+        const ctxCourse = document.getElementById("courseChart").getContext("2d");
+        courseChart = new Chart(ctxCourse, {
+            type: 'bar',
+            data: { labels: [], datasets: [{ label: 'Enrolled Students', data: [], backgroundColor: '#9d80e4' }] },
+            options: { responsive: true, maintainAspectRatio: false }
+        });
+
+        const ctxStatus = document.getElementById("statusChart").getContext("2d");
+        statusChart = new Chart(ctxStatus, {
+            type: 'doughnut',
+            data: { labels: [], datasets: [{ data: [], backgroundColor: ['#198754', '#ffc107', '#dc3545'] }] },
+            options: { responsive: true, maintainAspectRatio: false }
+        });
+
+        const ctxTop = document.getElementById("topStudentsChart").getContext("2d");
+        topStudentsChart = new Chart(ctxTop, {
+            type: 'bar',
+            data: { labels: [], datasets: [{ label: 'GPA', data: [], backgroundColor: '#641246' }] },
+            options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, scales: { x: { max: 4.0 } } }
         });
     }
 
-    // Export Button
-    const exportBtn = document.getElementById('exportBtn');
-    if (exportBtn) {
-        exportBtn.addEventListener('click', () => {
-            const search = document.getElementById('searchInput').value;
-            const category = document.getElementById('categoryFilter').value;
-            const stockStatus = document.getElementById('stockFilter').value;
-            const minPrice = parseFloat(document.getElementById('minPrice').value);
-            const maxPrice = parseFloat(document.getElementById('maxPrice').value);
+    function updateCharts(data) {
+        const courseCounts = {};
+        data.forEach(s => courseCounts[s.course] = (courseCounts[s.course] || 0) + 1);
+        courseChart.data.labels = Object.keys(courseCounts);
+        courseChart.data.datasets[0].data = Object.values(courseCounts);
+        courseChart.update();
 
-            const filtered = DataManager.getFilteredProducts(search, category, stockStatus, minPrice, maxPrice);
+        const statusCounts = { Regular: 0, Warning: 0, Probation: 0 };
+        data.forEach(s => statusCounts[s.status] = (statusCounts[s.status] || 0) + 1);
+        statusChart.data.labels = Object.keys(statusCounts);
+        statusChart.data.datasets[0].data = Object.values(statusCounts);
+        statusChart.update();
+
+        const sorted = [...data].sort((a, b) => b.gpa - a.gpa).slice(0, 5);
+        topStudentsChart.data.labels = sorted.map(s => s.name);
+        topStudentsChart.data.datasets[0].data = sorted.map(s => s.gpa);
+        topStudentsChart.update();
+    }
+
+    function setupEventListeners() {
+        document.getElementById("searchInput").addEventListener("input", renderDashboard);
+        document.getElementById("courseFilter").addEventListener("change", renderDashboard);
+        document.getElementById("statusFilter").addEventListener("change", renderDashboard);
+
+        document.getElementById("resetFilters").addEventListener("click", () => {
+            document.getElementById("searchInput").value = "";
+            document.getElementById("courseFilter").value = "All";
+            document.getElementById("statusFilter").value = "All";
+            renderDashboard();
+        });
+
+        document.getElementById("exportBtn").addEventListener("click", () => {
+            const courseValue = document.getElementById("courseFilter").value;
+            const statusValue = document.getElementById("statusFilter").value;
+            const searchQuery = document.getElementById("searchInput").value;
+            const filtered = DataManager.filterStudents(searchQuery, courseValue, statusValue);
             DataManager.exportToCSV(filtered);
         });
-    }
 
-    // Live Data Simulation Toggle
-    const simToggle = document.getElementById('liveSimulationToggle');
-    if (simToggle) {
-        simToggle.addEventListener('change', (e) => {
+        const handleLogout = () => {
+            localStorage.removeItem("loggedInUser");
+            window.location.href = "index.html";
+        };
+        document.getElementById("logoutBtn")?.addEventListener("click", handleLogout);
+        document.getElementById("sidebarLogout")?.addEventListener("click", handleLogout);
+
+        let simInterval = null;
+        document.getElementById("liveSimulationToggle").addEventListener("change", (e) => {
             if (e.target.checked) {
-                simulationInterval = setInterval(() => {
-                    const randomIndex = Math.floor(Math.random() * DataManager.products.length);
-                    const change = Math.floor(Math.random() * 5) - 2;
-                    DataManager.products[randomIndex].quantity = Math.max(0, DataManager.products[randomIndex].quantity + change);
-                    updateDashboard();
-                }, 3000);
+                simInterval = setInterval(() => {
+                    const students = DataManager.getStudents();
+                    if (students.length > 0) {
+                        const randomIndex = Math.floor(Math.random() * students.length);
+                        students[randomIndex].gpa = +(Math.random() * (4.00 - 1.50) + 1.50).toFixed(2);
+                        if (students[randomIndex].gpa < 2.0) students[randomIndex].status = "Probation";
+                        else if (students[randomIndex].gpa < 2.5) students[randomIndex].status = "Warning";
+                        else students[randomIndex].status = "Regular";
+
+                        renderDashboard();
+                    }
+                }, 4000);
             } else {
-                clearInterval(simulationInterval);
+                clearInterval(simInterval);
             }
         });
     }
-
-    // Initial Dashboard Execution
-    updateDashboard();
 });

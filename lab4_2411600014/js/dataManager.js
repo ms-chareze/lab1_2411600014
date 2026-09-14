@@ -1,71 +1,59 @@
 const DataManager = {
-    products: [],
+    students: [],
 
-    // Fetch data from api/products.php with local fallback
-    async loadProducts() {
+    async loadStudents() {
         try {
-            const response = await fetch('api/products.php');
-            if (!response.ok) throw new Error('API request failed');
-            this.products = await response.json();
+            const response = await fetch('api/students.php');
+            const result = await response.json();
+            if (result.status === 'success') {
+                this.students = result.data;
+            } else {
+                throw new Error('API Error');
+            }
         } catch (error) {
-            console.warn('Could not connect to api/products.php. Using fallback dataset.', error);
-            this.products = [
-                { sku: "PROD-001", name: "Wireless Ergonomic Mouse", category: "Electronics", price: 29.99, quantity: 45, minStock: 10 },
-                { sku: "PROD-002", name: "Mechanical RGB Keyboard", category: "Electronics", price: 89.99, quantity: 8, minStock: 15 },
-                { sku: "PROD-003", name: "Standing Desk Converter", category: "Furniture", price: 199.99, quantity: 12, minStock: 5 },
-                { sku: "PROD-004", name: "Ergonomic Mesh Chair", category: "Furniture", price: 249.99, quantity: 3, minStock: 5 },
-                { sku: "PROD-005", name: "USB-C Multi-Port Hub", category: "Electronics", price: 39.99, quantity: 0, minStock: 10 },
-                { sku: "PROD-006", name: "27-inch 4K Monitor", category: "Electronics", price: 349.99, quantity: 18, minStock: 5 },
-                { sku: "PROD-007", name: "Noise Canceling Headphones", category: "Electronics", price: 179.99, quantity: 50, minStock: 12 }
+            console.warn('API error, loading fallback data.', error);
+            this.students = [
+                { studentId: "STU-102", name: "Jane Doe", course: "BS Information Technology", gpa: 3.20, enrolledUnits: 18, status: "Regular" },
+                { studentId: "STU-103", name: "John Smith", course: "BS Computer Science", gpa: 2.40, enrolledUnits: 12, status: "Warning" },
+                { studentId: "STU-104", name: "Maria Santos", course: "BS Business Administration", gpa: 3.95, enrolledUnits: 24, status: "Regular" },
+                { studentId: "STU-105", name: "Alex Johnson", course: "BS Information Technology", gpa: 1.80, enrolledUnits: 9, status: "Probation" }
             ];
         }
-        return this.products;
+        return this.students;
     },
 
-    // Get Stock Status
-    getStatus(quantity, minStock) {
-        if (quantity === 0) return "Out of Stock";
-        if (quantity <= minStock) return "Low Stock";
-        return "In Stock";
+    getStudents() { return this.students; },
+
+    getStatistics() {
+        const totalStudents = this.students.length;
+        const totalUnits = this.students.reduce((acc, s) => acc + s.enrolledUnits, 0);
+        const avgGPA = totalStudents > 0 
+            ? (this.students.reduce((acc, s) => acc + s.gpa, 0) / totalStudents).toFixed(2) 
+            : "0.00";
+        const academicWarnings = this.students.filter(s => s.status === 'Warning' || s.status === 'Probation').length;
+
+        return { totalStudents, totalUnits, avgGPA, academicWarnings };
     },
 
-    // Filter Logic
-    getFilteredProducts(search = "", category = "All", stockStatus = "All", minPrice = 0, maxPrice = Infinity) {
-        return this.products.filter(p => {
-            const matchesSearch = p.name.toLowerCase().includes(search.toLowerCase()) || 
-                                  p.sku.toLowerCase().includes(search.toLowerCase());
-            const matchesCategory = category === "All" || p.category === category;
-            
-            const status = this.getStatus(p.quantity, p.minStock);
-            const matchesStatus = stockStatus === "All" || status === stockStatus;
+    filterStudents(search = "", courseFilter = "All", statusFilter = "All") {
+        return this.students.filter(s => {
+            const matchesSearch = s.name.toLowerCase().includes(search.toLowerCase()) || 
+                                  s.studentId.toLowerCase().includes(search.toLowerCase());
+            const matchesCourse = courseFilter === "All" || s.course === courseFilter;
+            const matchesStatus = statusFilter === "All" || s.status === statusFilter;
 
-            const matchesMinPrice = isNaN(minPrice) || minPrice === 0 || p.price >= minPrice;
-            const matchesMaxPrice = isNaN(maxPrice) || maxPrice === Infinity || p.price <= maxPrice;
-
-            return matchesSearch && matchesCategory && matchesStatus && matchesMinPrice && matchesMaxPrice;
+            return matchesSearch && matchesCourse && matchesStatus;
         });
     },
 
-    // CSV Download Functionality
     exportToCSV(data) {
-        const headers = ["SKU", "Name", "Category", "Price", "Quantity", "Status", "Total Value"];
-        const rows = data.map(p => [
-            p.sku,
-            `"${p.name}"`,
-            p.category,
-            p.price.toFixed(2),
-            p.quantity,
-            this.getStatus(p.quantity, p.minStock),
-            (p.price * p.quantity).toFixed(2)
-        ]);
-
-        const csvContent = "data:text/csv;charset=utf-8," + 
-            [headers.join(","), ...rows.map(e => e.join(","))].join("\n");
-
+        const headers = ["Student ID", "Name", "Course", "GPA", "Enrolled Units", "Academic Status"];
+        const rows = data.map(s => [s.studentId, `"${s.name}"`, `"${s.course}"`, s.gpa.toFixed(2), s.enrolledUnits, s.status]);
+        const csvContent = "data:text/csv;charset=utf-8," + [headers.join(","), ...rows.map(e => e.join(","))].join("\n");
         const encodedUri = encodeURI(csvContent);
         const link = document.createElement("a");
         link.setAttribute("href", encodedUri);
-        link.setAttribute("download", "inventory_report.csv");
+        link.setAttribute("download", "student_academic_records.csv");
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);

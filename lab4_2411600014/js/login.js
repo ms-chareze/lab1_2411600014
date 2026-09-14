@@ -1,22 +1,21 @@
-document.addEventListener('DOMContentLoaded', () => {
-    const loginForm = document.getElementById('loginForm');
-    
-    if (loginForm) {
-        loginForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const username = document.getElementById('username').value.trim();
-            const password = document.getElementById('password').value.trim();
-            const alertBox = document.getElementById('loginAlert');
+document.addEventListener("DOMContentLoaded", () => {
+    const loginForm = document.getElementById("loginForm");
 
-            if (username && password) {
-                // Save session username
-                localStorage.setItem('currentUser', username);
-                // Redirect to dashboard
-                window.location.href = 'dashboard.html';
-            } else {
-                alertBox.textContent = 'Please enter both username and password.';
-                alertBox.classList.remove('d-none');
+    loginForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        
+        const usernameInput = document.getElementById("username").value.trim();
+        const passwordInput = document.getElementById("password").value.trim();
+
+        if (usernameInput !== "" && passwordInput !== "") {
+            localStorage.setItem("loggedInUser", usernameInput);
+            window.location.href = "dashboard.html";
+        } else {
+            const alertBox = document.getElementById("loginAlert");
+            if (alertBox) {
+                alertBox.textContent = "Please enter both username and password.";
+                alertBox.classList.remove("d-none");
             }
-        });
-    }
+        }
+    });
 });
