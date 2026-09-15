@@ -168,10 +168,6 @@ body {
     background: var(--theme-primary);
 }
 
-/* ==========================================
-
-   ========================================== */
-
 .form-label {
     color: var(--theme-text);
     font-weight: 600;

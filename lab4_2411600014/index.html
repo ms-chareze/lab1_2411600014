@@ -3,32 +3,70 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Student Portal</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>Login - Student Grade Portal</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
 </head>
-<body class="d-flex align-items-center justify-content-center vh-100" style="background-color: #fff0f5;">
+<body class="login-page d-flex align-items-center justify-content-center min-vh-100">
 
-    <div class="card shadow-lg p-4 border-0" style="width: 100%; max-width: 400px;">
-        <div class="text-center mb-4">
-            <h3 class="fw-bold" style="color: #641246;">Student Portal</h3>
-            <p class="text-muted small">Please log in to manage student records</p>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-5 col-lg-4">
+                <div class="card login-card shadow-lg border-0">
+                    
+                    <!-- Gradient Purple Card Header (Matches Lab 3) -->
+                    <div class="card-header bg-gradient-primary text-white text-center py-4">
+                        <h3 class="fw-bold mb-1">Student Grade Portal</h3>
+                        <p class="small mb-0 opacity-75">Login to your dashboard</p>
+                    </div>
+
+                    <div class="card-body p-4 bg-white">
+                        
+                        <!-- Alert Message Area -->
+                        <div id="loginAlert" class="alert alert-danger d-none py-2 px-3 mb-3 small" role="alert"></div>
+
+                        <form id="loginForm">
+                            <div class="mb-3">
+                                <label for="username" class="form-label small text-muted">Username</label>
+                                <input type="text" class="form-control" id="username" placeholder="Enter username" required>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <label for="password" class="form-label small text-muted">Password</label>
+                                <input type="password" class="form-control" id="password" placeholder="Enter password" required>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold">Login</button>
+                        </form>
+
+                    </div>
+                </div>
+            </div>
         </div>
-
-        <div id="loginAlert" class="alert alert-danger d-none" role="alert"></div>
-
-        <form id="loginForm">
-            <div class="mb-3">
-                <label for="username" class="form-label fw-bold small" style="color: #641246;">Username</label>
-                <input type="text" class="form-control" id="username" placeholder="Enter username" required>
-            </div>
-            <div class="mb-4">
-                <label for="password" class="form-label fw-bold small" style="color: #641246;">Password</label>
-                <input type="password" class="form-control" id="password" placeholder="Enter password" required>
-            </div>
-            <button type="submit" class="btn text-white fw-bold w-100 py-2" style="background-color: #9d80e4;">Sign In</button>
-        </form>
     </div>
 
-    <script src="js/login.js"></script>
+    <!-- JavaScript Source Files -->
+    <script src="js/dataManager.js"></script>
+    <script>
+        document.getElementById("loginForm").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const user = document.getElementById("username").value.trim();
+            const pass = document.getElementById("password").value.trim();
+            const alertBox = document.getElementById("loginAlert");
+
+            if (!user || !pass) {
+                alertBox.textContent = "Please fill in all fields.";
+                alertBox.classList.remove("d-none");
+                return;
+            }
+
+            // Simple login verification
+            localStorage.setItem("user", user);
+            localStorage.setItem("isLoggedIn", "true");
+            window.location.href = "dashboard.html";
+        });
+    </script>
 </body>
 </html>
