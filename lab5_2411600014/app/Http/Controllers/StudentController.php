@@ -21,7 +21,7 @@ class StudentController extends Controller
      */
     public function create()
     {
-        return view('students.create');
+        return view('students.form');
     }
 
     /**
@@ -62,7 +62,7 @@ class StudentController extends Controller
      */
     public function edit(Student $student)
     {
-        return view('students.edit', compact('student'));
+        return view('students.form', compact('student'));
     }
 
     /**

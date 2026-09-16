@@ -14,42 +14,8 @@
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
 
-    <!-- Custom Purple Theme Styling -->
-    <style>
-        body {
-            background-color: #FFF4F4;
-            color: #612D53;
-            font-family: 'Figtree', sans-serif;
-        }
-        .navbar {
-            background-color: #612D53 !important;
-        }
-        .navbar-brand, .nav-link {
-            color: #FFF4F4 !important;
-        }
-        .nav-link:hover {
-            color: #F9B2D7 !important;
-        }
-        .btn-primary {
-            background-color: #A084DC;
-            border-color: #A084DC;
-        }
-        .btn-primary:hover {
-            background-color: #B983FF;
-            border-color: #B983FF;
-        }
-        .card {
-            border: 1px solid #A084DC;
-            border-radius: 10px;
-        }
-        .card-header {
-            background-color: #B983FF;
-            color: white;
-            font-weight: bold;
-            border-top-left-radius: 9px !important;
-            border-top-right-radius: 9px !important;
-        }
-    </style>
+    <!-- Custom Theme Stylesheet (Public CSS Directory) -->
+    <link rel="stylesheet" href="{{ asset('css/custom.css') }}">
 
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -59,12 +25,15 @@
         <!-- Navigation Section -->
         <nav class="navbar navbar-expand-lg shadow-sm mb-4">
             <div class="container">
-                <a class="navbar-brand fw-bold" href="{{ route('students.index') }}">🎓 Student Grade Portal</a>
+                <a class="navbar-brand fw-bold" href="{{ route('dashboard') }}">🎓 Student Grade Portal</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
                     <ul class="navbar-nav align-items-center">
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('dashboard') }}">Dashboard</a>
+                        </li>
                         <li class="nav-item">
                             <a class="nav-link" href="{{ route('students.index') }}">Students List</a>
                         </li>
@@ -74,10 +43,10 @@
                         
                         @auth
                             <li class="nav-item dropdown ms-3">
-                                <span class="text-light me-2">Hello, {{ Auth::user()->name }}</span>
+                                <span class="text-secondary me-2">Hello, {{ Auth::user()->name }}</span>
                                 <form method="POST" action="{{ route('logout') }}" class="d-inline">
                                     @csrf
-                                    <button type="submit" class="btn btn-sm btn-outline-light">Logout</button>
+                                    <button type="submit" class="btn btn-sm btn-portal">Logout</button>
                                 </form>
                             </li>
                         @endauth
