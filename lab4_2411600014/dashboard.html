@@ -1,185 +1,274 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - Student Grade Portal</title>
+<!DOCTYPE html> <!-- Declares the document type and version as HTML5 -->
+<html lang="en"> <!-- Opens the main HTML root element with English as the language -->
+<head> <!-- Opens the document head section for metadata and assets -->
+    <meta charset="UTF-8"> <!-- Sets character encoding to UTF-8 for text support -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Configures viewport scaling for responsive mobile design -->
+    <title>Dashboard - Student Grade Portal</title> <!-- Sets the title of the webpage displayed on the browser tab -->
     <!-- Bootstrap 5 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"> <!-- Links Bootstrap 5 stylesheet for pre-designed styles -->
     <!-- Chart.js Library -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <!-- Loads Chart.js script for rendering visual data charts -->
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="css/style.css">
-</head>
-<body>
+    <link rel="stylesheet" href="css/style.css"> <!-- Links custom stylesheet for page styling -->
+</head> <!-- Closes the document head section -->
+<body> <!-- Opens the main body container for all visible content -->
 
-    <!-- Top Purple Navbar (Lab 3 Header Style) -->
-    <nav class="navbar navbar-expand-lg bg-gradient-primary navbar-dark px-4 py-2">
-        <div class="container-fluid p-0">
-            <a class="navbar-brand fw-bold fs-4" href="#">Student Grade Portal</a>
-            <div class="d-flex align-items-center text-white">
-                <span id="welcomeUser" class="me-3 fw-semibold">Welcome, admin</span>
-                <button class="btn btn-outline-light btn-sm px-3" id="logoutBtn">Logout</button>
-            </div>
-        </div>
-    </nav>
+    <!-- Top Purple Navbar -->
+    <nav class="navbar navbar-expand-lg bg-gradient-primary navbar-dark px-4 py-2"> <!-- Opens the navigation bar with Bootstrap classes -->
+        <div class="container-fluid p-0"> <!-- Opens container fluid to align items inside the navbar -->
+            <a class="navbar-brand fw-bold fs-4" href="#">Student Grade Portal</a> <!-- Displays the portal brand name -->
+            <div class="d-flex align-items-center text-white"> <!-- Opens flex container for user details and logout button -->
+                <span id="roleBadge" class="badge bg-light text-dark me-3 px-2 py-1">Admin Mode</span> <!-- Displays current role badge -->
+                <span id="welcomeUser" class="me-3 fw-semibold">Welcome, admin</span> <!-- Displays welcome text with the current username -->
+                <button class="btn btn-outline-light btn-sm px-3" id="logoutBtn">Logout</button> <!-- Logout action button -->
+            </div> <!-- Closes user details container -->
+        </div> <!-- Closes container fluid -->
+    </nav> <!-- Closes navigation bar -->
 
-    <div class="container-fluid">
-        <div class="row">
+    <div class="container-fluid"> <!-- Opens main fluid container for grid layout -->
+        <div class="row"> <!-- Opens Bootstrap row for sidebar and main content layout -->
             
-            <!-- Left Navigation Sidebar (Lab 3 Layout) -->
-            <div class="col-md-2 min-vh-100 sidebar p-3">
-                <div class="nav flex-column nav-pills">
-                    <a class="nav-link active fw-semibold mb-2" href="#">Dashboard</a>
-                    <a class="nav-link text-muted fw-semibold mb-2" href="#">Profile</a>
-                    <a class="nav-link text-muted fw-semibold mb-2" href="#">Settings</a>
-                    <a class="nav-link text-danger fw-semibold mt-4" href="#" id="sidebarLogout">Logout</a>
-                </div>
-            </div>
+            <!-- Left Navigation Sidebar -->
+            <div class="col-md-2 min-vh-100 sidebar p-3"> <!-- Opens the left sidebar column -->
+                <div class="nav flex-column nav-pills"> <!-- Opens vertical navigation pill items container -->
+                    <a class="nav-link active fw-semibold mb-2" href="#" id="navDashboard">Dashboard</a> <!-- Sidebar link for Dashboard view -->
+                    <a class="nav-link text-muted fw-semibold mb-2" href="#" id="navProfile">Profile & Settings</a> <!-- Sidebar link for profile view -->
+                    <a class="nav-link text-muted fw-semibold mb-2" href="#" id="navAudit">Audit Trail Logs</a> <!-- Sidebar link for audit logs view -->
+                    <a class="nav-link text-danger fw-semibold mt-4" href="#" id="sidebarLogout">Logout</a> <!-- Sidebar logout link -->
+                </div> <!-- Closes navigation pill items container -->
+            </div> <!-- Closes sidebar column -->
 
-            <!-- Main Lab 4 Dashboard Content Area -->
-            <div class="col-md-10 p-4">
+            <!-- Main Dashboard Content Area -->
+            <div class="col-md-10 p-4" id="mainContentArea"> <!-- Opens the main content area column -->
                 
-                <h2 class="fw-bold mb-4" style="color: var(--theme-text);">Good Night, admin!</h2>
+                <div class="d-flex justify-content-between align-items-center mb-4"> <!-- Opens flex container for header title and action buttons -->
+                    <h2 class="fw-bold mb-0" style="color: var(--theme-text);" id="dashboardGreeting">Good Morning, admin!</h2> <!-- Main section greeting header -->
+                    <div id="adminActionButtons" class="d-flex gap-2"> <!-- Opens container for administrative action buttons -->
+                        <button class="btn btn-primary btn-sm fw-semibold" data-bs-toggle="modal" data-bs-target="#studentModal" id="addNewStudentBtn">+ Add New Student</button> <!-- Button to open modal for adding a new student -->
+                        <label class="btn btn-success btn-sm fw-semibold mb-0" style="cursor: pointer;"> <!-- Clickable label wrapper for CSV file upload -->
+                            Import CSV <input type="file" id="csvFileInput" accept=".csv" class="d-none"> <!-- Hidden file input for uploading CSV records -->
+                        </label> <!-- Closes CSV import label wrapper -->
+                        <button class="btn btn-outline-success btn-sm fw-semibold" id="exportBtn">Export CSV</button> <!-- Button to export records to CSV -->
+                    </div> <!-- Closes administrative action buttons container -->
+                </div> <!-- Closes header title and action buttons container -->
 
-                <!-- Simulation & Filters Toolbar Card -->
-                <div class="card shadow-sm border-0 mb-4 p-3 bg-white rounded-3">
-                    <div class="row g-3 align-items-end">
-                        <div class="col-md-3">
-                            <div class="form-check form-switch mt-2">
-                                <input class="form-check-input" type="checkbox" id="liveSimulationToggle">
-                                <label class="form-check-label fw-bold small text-muted" for="liveSimulationToggle">Live Simulation Data</label>
-                            </div>
-                            <button class="btn btn-success btn-sm w-100 mt-2 fw-semibold" id="exportBtn">Export to CSV</button>
-                        </div>
-                        <div class="col-md-3">
-                            <label for="searchInput" class="form-label small mb-1">Search Student</label>
-                            <input type="text" id="searchInput" class="form-control form-control-sm" placeholder="Search by name or ID...">
-                        </div>
-                        <div class="col-md-2">
-                            <label for="courseFilter" class="form-label small mb-1">Filter Course</label>
-                            <select id="courseFilter" class="form-select form-select-sm">
-                                <option value="All">All Courses</option>
-                                <option value="BS Information Technology">BS Information Technology</option>
-                                <option value="BS Computer Science">BS Computer Science</option>
-                                <option value="BS Business Administration">BS Business Administration</option>
-                                <option value="BS Office Administration">BS Office Administration</option>
-                            </select>
-                        </div>
-                        <div class="col-md-2">
-                            <label for="statusFilter" class="form-label small mb-1">Filter Status</label>
-                            <select id="statusFilter" class="form-select form-select-sm">
-                                <option value="All">All Statuses</option>
-                                <option value="Regular">Regular</option>
-                                <option value="Warning">Warning</option>
-                                <option value="Probation">Probation</option>
-                            </select>
-                        </div>
-                        <div class="col-md-2">
-                            <button class="btn btn-outline-secondary btn-sm w-100" id="resetFilters">Reset</button>
-                        </div>
-                    </div>
-                </div>
+                <!-- Term Selector & Filters Toolbar Card -->
+                <div class="card shadow-sm border-0 mb-4 p-3 bg-white rounded-3"> <!-- Opens card container for filter controls -->
+                    <div class="row g-3 align-items-end"> <!-- Opens row grid for filter inputs -->
+                        <div class="col-md-3"> <!-- Opens grid column for academic term filter -->
+                            <label for="termFilter" class="form-label small mb-1">Academic Term</label> <!-- Label for term select dropdown -->
+                            <select id="termFilter" class="form-select form-select-sm"> <!-- Dropdown to select academic term -->
+                                <option value="1st Semester S.Y. 2026-2027">1st Semester S.Y. 2026-2027</option> <!-- Option for first term -->
+                                <option value="2nd Semester S.Y. 2026-2027">2nd Semester S.Y. 2026-2027</option> <!-- Option for second term -->
+                            </select> <!-- Closes term select dropdown -->
+                        </div> <!-- Closes grid column for term filter -->
+                        <div class="col-md-3"> <!-- Opens grid column for search input -->
+                            <label for="searchInput" class="form-label small mb-1">Search Student</label> <!-- Label for search input field -->
+                            <input type="text" id="searchInput" class="form-control form-control-sm" placeholder="Search by name or ID..."> <!-- Text input to search students -->
+                        </div> <!-- Closes grid column for search input -->
+                        <div class="col-md-2"> <!-- Opens grid column for course filter -->
+                            <label for="courseFilter" class="form-label small mb-1">Filter Course</label> <!-- Label for course dropdown -->
+                            <select id="courseFilter" class="form-select form-select-sm"> <!-- Dropdown to filter by degree course -->
+                                <option value="All">All Courses</option> <!-- Option to show all courses -->
+                                <option value="BS Information Technology">BS Information Technology</option> <!-- Option for BSIT -->
+                                <option value="BS Computer Science">BS Computer Science</option> <!-- Option for BSCS -->
+                                <option value="BS Business Administration">BS Business Administration</option> <!-- Option for BSBA -->
+                                <option value="BS Office Administration">BS Office Administration</option> <!-- Option for BSOA -->
+                            </select> <!-- Closes course dropdown -->
+                        </div> <!-- Closes grid column for course filter -->
+                        <div class="col-md-2"> <!-- Opens grid column for status filter -->
+                            <label for="statusFilter" class="form-label small mb-1">Filter Status</label> <!-- Label for status dropdown -->
+                            <select id="statusFilter" class="form-select form-select-sm"> <!-- Dropdown to filter by academic status -->
+                                <option value="All">All Statuses</option> <!-- Option to show all statuses -->
+                                <option value="Regular">Regular</option> <!-- Option for Regular status -->
+                                <option value="Warning">Warning</option> <!-- Option for Warning status -->
+                                <option value="Probation">Probation</option> <!-- Option for Probation status -->
+                            </select> <!-- Closes status dropdown -->
+                        </div> <!-- Closes grid column for status filter -->
+                        <div class="col-md-2"> <!-- Opens grid column for reset filters button -->
+                            <button class="btn btn-outline-secondary btn-sm w-100" id="resetFilters">Reset Filters</button> <!-- Button to reset all filters -->
+                        </div> <!-- Closes grid column for reset button -->
+                    </div> <!-- Closes row grid for filter inputs -->
+                </div> <!-- Closes card container for filter controls -->
 
-                <!-- 4 Metrics Display Cards (Lab 3 Stat Card Design) -->
-                <div class="row text-center mb-4 g-3">
-                    <div class="col-md-3">
-                        <div class="card stat-card shadow-sm border-0 bg-white border-primary-custom">
-                            <div class="card-body">
-                                <div class="card-title text-muted fw-bold">Total Students</div>
-                                <div class="card-text fw-bold text-primary-custom" id="totalStudents">0</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="card stat-card shadow-sm border-0 bg-white border-success-custom">
-                            <div class="card-body">
-                                <div class="card-title text-muted fw-bold">Average GPA</div>
-                                <div class="card-text fw-bold text-success" id="averageGPA">0.00</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="card stat-card shadow-sm border-0 bg-white border-accent">
-                            <div class="card-body">
-                                <div class="card-title text-muted fw-bold">Academic Warnings</div>
-                                <div class="card-text fw-bold text-danger" id="academicWarnings">0</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="card stat-card shadow-sm border-0 bg-white border-primary-custom">
-                            <div class="card-body">
-                                <div class="card-title text-muted fw-bold">Total Units</div>
-                                <div class="card-text fw-bold style-dark" id="totalUnits" style="color: var(--theme-text);">0</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <!-- 4 Metrics Display Cards -->
+                <div class="row text-center mb-4 g-3"> <!-- Opens row container for metric cards -->
+                    <div class="col-md-3"> <!-- Opens column for Total Students metric card -->
+                        <div class="card stat-card shadow-sm border-0 bg-white border-primary-custom"> <!-- Card container -->
+                            <div class="card-body"> <!-- Card body container -->
+                                <div class="card-title text-muted fw-bold">Total Students</div> <!-- Metric card title -->
+                                <div class="card-text fw-bold text-primary-custom" id="totalStudents">0</div> <!-- Dynamic value element for total students -->
+                            </div> <!-- Closes card body -->
+                        </div> <!-- Closes card container -->
+                    </div> <!-- Closes column for total students -->
+                    <div class="col-md-3"> <!-- Opens column for Average GPA metric card -->
+                        <div class="card stat-card shadow-sm border-0 bg-white border-success-custom"> <!-- Card container -->
+                            <div class="card-body"> <!-- Card body container -->
+                                <div class="card-title text-muted fw-bold">Average GPA</div> <!-- Metric card title -->
+                                <div class="card-text fw-bold text-success" id="averageGPA">0.00</div> <!-- Dynamic value element for average GPA -->
+                            </div> <!-- Closes card body -->
+                        </div> <!-- Closes card container -->
+                    </div> <!-- Closes column for average GPA -->
+                    <div class="col-md-3"> <!-- Opens column for Academic Warnings metric card -->
+                        <div class="card stat-card shadow-sm border-0 bg-white border-accent"> <!-- Card container -->
+                            <div class="card-body"> <!-- Card body container -->
+                                <div class="card-title text-muted fw-bold">Academic Warnings</div> <!-- Metric card title -->
+                                <div class="card-text fw-bold text-danger" id="academicWarnings">0</div> <!-- Dynamic value element for academic warnings count -->
+                            </div> <!-- Closes card body -->
+                        </div> <!-- Closes card container -->
+                    </div> <!-- Closes column for academic warnings -->
+                    <div class="col-md-3"> <!-- Opens column for Total Units metric card -->
+                        <div class="card stat-card shadow-sm border-0 bg-white border-primary-custom"> <!-- Card container -->
+                            <div class="card-body"> <!-- Card body container -->
+                                <div class="card-title text-muted fw-bold">Total Units</div> <!-- Metric card title -->
+                                <div class="card-text fw-bold" id="totalUnits" style="color: var(--theme-text);">0</div> <!-- Dynamic value element for total enrolled units -->
+                            </div> <!-- Closes card body -->
+                        </div> <!-- Closes card container -->
+                    </div> <!-- Closes column for total units -->
+                </div> <!-- Closes row container for metric cards -->
 
                 <!-- Academic Alert Box -->
-                <div id="academicWarningAlert" class="alert alert-danger d-none shadow-sm mb-4 border-0" role="alert">
-                    <h6 class="alert-heading fw-bold">Academic Warning Alert (<span id="warningCountText">0</span> Students Needing Review)</h6>
-                    <ul id="warningList" class="mb-0 small"></ul>
-                </div>
+                <div id="academicWarningAlert" class="alert alert-danger d-none shadow-sm mb-4 border-0" role="alert"> <!-- Hidden alert container for students needing review -->
+                    <h6 class="alert-heading fw-bold">Academic Warning Alert (<span id="warningCountText">0</span> Students Needing Review)</h6> <!-- Alert heading with dynamic count -->
+                    <ul id="warningList" class="mb-0 small"></ul> <!-- Unlisted list container for warning student names -->
+                </div> <!-- Closes alert container -->
 
-                <!-- Visual Charts Section -->
-                <div class="row mb-4 g-3">
-                    <div class="col-md-4">
-                        <div class="card shadow-sm border-0 p-3 h-100">
-                            <h6 class="fw-bold mb-3" style="color: var(--theme-text);">Course Distribution</h6>
-                            <div class="chart-container" style="height: 200px;">
-                                <canvas id="courseChart"></canvas>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="card shadow-sm border-0 p-3 h-100">
-                            <h6 class="fw-bold mb-3" style="color: var(--theme-text);">Academic Status</h6>
-                            <div class="chart-container" style="height: 200px;">
-                                <canvas id="statusChart"></canvas>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="card shadow-sm border-0 p-3 h-100">
-                            <h6 class="fw-bold mb-3" style="color: var(--theme-text);">Top Performing GPA</h6>
-                            <div class="chart-container" style="height: 200px;">
-                                <canvas id="topStudentsChart"></canvas>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <!-- Visual Charts Section with Explicit Axis Labels -->
+                <div class="row mb-4 g-3"> <!-- Opens row container for charts -->
+                    <div class="col-md-4"> <!-- Opens column for course distribution chart -->
+                        <div class="card shadow-sm border-0 p-3 h-100"> <!-- Card container -->
+                            <h6 class="fw-bold mb-3" style="color: var(--theme-text);">Course Distribution</h6> <!-- Chart card title -->
+                            <div class="chart-container" style="height: 220px;"> <!-- Chart canvas container wrapper -->
+                                <canvas id="courseChart"></canvas> <!-- Canvas element for course distribution chart -->
+                            </div> <!-- Closes chart wrapper -->
+                        </div> <!-- Closes card container -->
+                    </div> <!-- Closes column for course chart -->
+                    <div class="col-md-4"> <!-- Opens column for academic status ratio chart -->
+                        <div class="card shadow-sm border-0 p-3 h-100"> <!-- Card container -->
+                            <h6 class="fw-bold mb-3" style="color: var(--theme-text);">Academic Status Ratio</h6> <!-- Chart card title -->
+                            <div class="chart-container" style="height: 220px;"> <!-- Chart canvas container wrapper -->
+                                <canvas id="statusChart"></canvas> <!-- Canvas element for status ratio chart -->
+                            </div> <!-- Closes chart wrapper -->
+                        </div> <!-- Closes card container -->
+                    </div> <!-- Closes column for status chart -->
+                    <div class="col-md-4"> <!-- Opens column for top performing GPA chart -->
+                        <div class="card shadow-sm border-0 p-3 h-100"> <!-- Card container -->
+                            <h6 class="fw-bold mb-3" style="color: var(--theme-text);">Top Performing GPA</h6> <!-- Chart card title -->
+                            <div class="chart-container" style="height: 220px;"> <!-- Chart canvas container wrapper -->
+                                <canvas id="topStudentsChart"></canvas> <!-- Canvas element for top students chart -->
+                            </div> <!-- Closes chart wrapper -->
+                        </div> <!-- Closes card container -->
+                    </div> <!-- Closes column for top students chart -->
+                </div> <!-- Closes row container for charts -->
 
-                <!-- Student Records Data Table (Lab 3 Styled Header) -->
-                <div class="card shadow-sm border-0">
-                    <div class="card-body p-0">
-                        <div class="table-responsive">
-                            <table class="table table-hover align-middle mb-0">
-                                <thead>
-                                    <tr style="background-color: var(--theme-text); color: #ffffff;">
-                                        <th class="py-3 px-3">Student ID</th>
-                                        <th class="py-3">Name</th>
-                                        <th class="py-3">Course</th>
-                                        <th class="py-3">GPA</th>
-                                        <th class="py-3">Units</th>
-                                        <th class="py-3">Status</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="studentTableBody">
-                                    <!-- Dynamic Rows Rendered by JavaScript -->
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
+                <!-- Student Records Data Table with Sortable Headers -->
+                <div class="card shadow-sm border-0 mb-4"> <!-- Card container for table section -->
+                    <div class="card-body p-0"> <!-- Card body without padding -->
+                        <div class="table-responsive"> <!-- Responsive table wrapper container -->
+                            <table class="table table-hover align-middle mb-0"> <!-- Main HTML table element -->
+                                <thead> <!-- Table header section -->
+                                    <tr style="background-color: var(--theme-text); color: #ffffff; cursor: pointer;"> <!-- Table header row with custom theme styling -->
+                                        <th class="py-3 px-3 sortable" data-sort="studentId">Student ID ↕</th> <!-- Sortable header column for Student ID -->
+                                        <th class="py-3 sortable" data-sort="name">Name ↕</th> <!-- Sortable header column for Student Name -->
+                                        <th class="py-3 sortable" data-sort="course">Course ↕</th> <!-- Sortable header column for Degree Course -->
+                                        <th class="py-3 sortable" data-sort="gpa">GPA ↕</th> <!-- Sortable header column for GPA -->
+                                        <th class="py-3 sortable" data-sort="enrolledUnits">Units ↕</th> <!-- Sortable header column for Enrolled Units -->
+                                        <th class="py-3 sortable" data-sort="status">Status ↕</th> <!-- Sortable header column for Academic Status -->
+                                        <th class="py-3 text-center" id="actionHeader">Actions</th> <!-- Table header for action buttons -->
+                                    </tr> <!-- Closes table header row -->
+                                </thead> <!-- Closes table header section -->
+                                <tbody id="studentTableBody"> <!-- Table body container where dynamic student rows are inserted -->
+                                    <!-- Dynamic Rows -->
+                                </tbody> <!-- Closes table body container -->
+                            </table> <!-- Closes main table element -->
+                        </div> <!-- Closes responsive table wrapper -->
+                    </div> <!-- Closes card body -->
+                    <!-- Table Pagination Controls Footer -->
+                    <div class="card-footer bg-white d-flex justify-content-between align-items-center py-3"> <!-- Card footer container for pagination -->
+                        <span class="small text-muted" id="paginationInfo">Showing 0 to 0 of 0 entries</span> <!-- Text showing current entry count range -->
+                        <nav> <!-- Navigation container for pagination links -->
+                            <ul class="pagination pagination-sm mb-0" id="paginationControls"> <!-- Unlisted list for pagination buttons -->
+                                <!-- Dynamic Pagination Links -->
+                            </ul> <!-- Closes pagination list -->
+                        </nav> <!-- Closes navigation container -->
+                    </div> <!-- Closes card footer -->
+                </div> <!-- Closes card container for table section -->
 
-            </div>
-        </div>
-    </div>
+            </div> <!-- Closes main content area column -->
+        </div> <!-- Closes layout row -->
+    </div> <!-- Closes main fluid container -->
 
-    <!-- JavaScript Source Files -->
-    <script src="js/dataManager.js"></script>
-    <script src="js/dashboard.js"></script>
-</body>
-</html>
+    <!-- Add/Edit Student Modal -->
+    <div class="modal fade" id="studentModal" tabindex="-1"> <!-- Modal container for adding or editing a student -->
+        <div class="modal-dialog"> <!-- Modal dialog wrapper -->
+            <div class="modal-content"> <!-- Modal content container -->
+                <div class="modal-header bg-gradient-primary text-white"> <!-- Modal header container -->
+                    <h5 class="modal-title fw-bold" id="studentModalTitle">Add New Student</h5> <!-- Modal title text -->
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button> <!-- Close button for modal -->
+                </div> <!-- Closes modal header -->
+                <div class="modal-body"> <!-- Modal body container -->
+                    <form id="studentForm"> <!-- Form element for student details input -->
+                        <input type="hidden" id="formMode" value="add"> <!-- Hidden input tracking whether form is in add or edit mode -->
+                        <div class="mb-3"> <!-- Form group for Student ID -->
+                            <label class="form-label small">Student ID</label> <!-- Label for Student ID input -->
+                            <input type="text" class="form-control form-control-sm" id="modalStudentId" required placeholder=""> <!-- Input field for Student ID -->
+                        </div> <!-- Closes form group -->
+                        <div class="mb-3"> <!-- Form group for Full Name -->
+                            <label class="form-label small">Full Name</label> <!-- Label for Name input -->
+                            <input type="text" class="form-control form-control-sm" id="modalName" required placeholder=""> <!-- Input field for full name -->
+                        </div> <!-- Closes form group -->
+                        <div class="mb-3"> <!-- Form group for Course selection -->
+                            <label class="form-label small">Course</label> <!-- Label for Course dropdown -->
+                            <select class="form-select form-select-sm" id="modalCourse"> <!-- Course dropdown selection element -->
+                                <option value="BS Information Technology">BS Information Technology</option> <!-- Option for BSIT -->
+                                <option value="BS Computer Science">BS Computer Science</option> <!-- Option for BSCS -->
+                                <option value="BS Business Administration">BS Business Administration</option> <!-- Option for BSBA -->
+                                <option value="BS Office Administration">BS Office Administration</option> <!-- Option for BSOA -->
+                            </select> <!-- Closes course dropdown -->
+                        </div> <!-- Closes form group -->
+                        <div class="row"> <!-- Row grid for GPA and Units inputs -->
+                            <div class="col-md-6 mb-3"> <!-- Column for GPA input -->
+                                <label class="form-label small">GPA (1.0 - 4.0)</label> <!-- Label for GPA input -->
+                                <input type="number" step="0.01" min="1.0" max="4.0" class="form-control form-control-sm" id="modalGpa" required value="3.00"> <!-- Number input for GPA -->
+                            </div> <!-- Closes column for GPA -->
+                            <div class="col-md-6 mb-3"> <!-- Column for Enrolled Units input -->
+                                <label class="form-label small">Enrolled Units</label> <!-- Label for Units input -->
+                                <input type="number" min="1" max="30" class="form-control form-control-sm" id="modalUnits" required value="18"> <!-- Number input for enrolled units -->
+                            </div> <!-- Closes column for units -->
+                        </div> <!-- Closes row grid -->
+                        <div class="mb-3"> <!-- Form group for Academic Status selection -->
+                            <label class="form-label small">Academic Status</label> <!-- Label for status dropdown -->
+                            <select class="form-select form-select-sm" id="modalStatus"> <!-- Status dropdown selection element -->
+                                <option value="Regular">Regular</option> <!-- Option for Regular status -->
+                                <option value="Warning">Warning</option> <!-- Option for Warning status -->
+                                <option value="Probation">Probation</option> <!-- Option for Probation status -->
+                            </select> <!-- Closes status dropdown -->
+                        </div> <!-- Closes form group -->
+                        <button type="submit" class="btn btn-primary w-100 btn-sm fw-semibold">Save Record</button> <!-- Submit button to save student record -->
+                    </form> <!-- Closes student form -->
+                </div> <!-- Closes modal body -->
+            </div> <!-- Closes modal content -->
+        </div> <!-- Closes modal dialog wrapper -->
+    </div> <!-- Closes Add/Edit student modal container -->
+
+    <!-- Student Detail & Grade Breakdown Modal -->
+    <div class="modal fade" id="detailModal" tabindex="-1"> <!-- Modal container for viewing individual student grade profile -->
+        <div class="modal-dialog modal-lg"> <!-- Large modal dialog wrapper -->
+            <div class="modal-content"> <!-- Modal content container -->
+                <div class="modal-header bg-gradient-primary text-white"> <!-- Modal header container -->
+                    <h5 class="modal-title fw-bold" id="detailModalTitle">Student Academic Profile</h5> <!-- Modal title for student profile -->
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button> <!-- Close button for modal -->
+                </div> <!-- Closes modal header -->
+                <div class="modal-body" id="detailModalBody"> <!-- Modal body container populated dynamically -->
+                    <!-- Populated dynamically -->
+                </div> <!-- Closes modal body -->
+            </div> <!-- Closes modal content -->
+        </div> <!-- Closes modal dialog wrapper -->
+    </div> <!-- Closes student detail modal container -->
+
+    <!-- Bootstrap 5 JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script> <!-- Loads Bootstrap 5 JavaScript bundle for interactive components -->
+    <script src="js/dataManager.js"></script> <!-- Loads the custom data manager script file -->
+    <script src="js/dashboard.js"></script> <!-- Loads the custom dashboard logic script file -->
+</body> <!-- Closes main body container -->
+</html> <!-- Closes main HTML root element -->

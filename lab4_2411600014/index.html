@@ -1,72 +1,72 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Student Grade Portal</title>
+<!DOCTYPE html> <!-- Declares the document type and version as HTML5 -->
+<html lang="en"> <!-- Opens the main HTML root element with English as the language -->
+<head> <!-- Opens the document head section for metadata and assets -->
+    <meta charset="UTF-8"> <!-- Sets character encoding to UTF-8 for text support -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Configures viewport scaling for responsive mobile design -->
+    <title>Login - Student Grade Portal</title> <!-- Sets the title of the login webpage displayed on the browser tab -->
     <!-- Bootstrap 5 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"> <!-- Links Bootstrap 5 stylesheet for pre-designed styles -->
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="css/style.css">
-</head>
-<body class="login-page d-flex align-items-center justify-content-center min-vh-100">
+    <link rel="stylesheet" href="css/style.css"> <!-- Links custom stylesheet for page styling -->
+</head> <!-- Closes the document head section -->
+<body class="login-page d-flex align-items-center justify-content-center min-vh-100"> <!-- Opens main body container with flex utility classes to center content vertically and horizontally -->
 
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-md-5 col-lg-4">
-                <div class="card login-card shadow-lg border-0">
+    <div class="container"> <!-- Opens Bootstrap container wrapper -->
+        <div class="row justify-content-center"> <!-- Opens row element to center content columns horizontally -->
+            <div class="col-md-5 col-lg-4"> <!-- Opens column element defining responsive width for the login card -->
+                <div class="card login-card shadow-lg border-0"> <!-- Opens card container for the login form box with shadow styling -->
                     
                     <!-- Gradient Purple Card Header (Matches Lab 3) -->
-                    <div class="card-header bg-gradient-primary text-white text-center py-4">
-                        <h3 class="fw-bold mb-1">Student Grade Portal</h3>
-                        <p class="small mb-0 opacity-75">Login to your dashboard</p>
-                    </div>
+                    <div class="card-header bg-gradient-primary text-white text-center py-4"> <!-- Opens card header container with gradient purple background and white text -->
+                        <h3 class="fw-bold mb-1">Student Grade Portal</h3> <!-- Main heading title inside the card header -->
+                        <p class="small mb-0 opacity-75">Login to your dashboard</p> <!-- Subtitle description paragraph inside the card header -->
+                    </div> <!-- Closes card header container -->
 
-                    <div class="card-body p-4 bg-white">
+                    <div class="card-body p-4 bg-white"> <!-- Opens card body container with padding and white background -->
                         
                         <!-- Alert Message Area -->
-                        <div id="loginAlert" class="alert alert-danger d-none py-2 px-3 mb-3 small" role="alert"></div>
+                        <div id="loginAlert" class="alert alert-danger d-none py-2 px-3 mb-3 small" role="alert"></div> <!-- Hidden alert box container used to show validation or login errors -->
 
-                        <form id="loginForm">
-                            <div class="mb-3">
-                                <label for="username" class="form-label small text-muted">Username</label>
-                                <input type="text" class="form-control" id="username" placeholder="Enter username" required>
-                            </div>
+                        <form id="loginForm"> <!-- Opens login form element with an ID for script targeting -->
+                            <div class="mb-3"> <!-- Opens form group container for username input with bottom margin -->
+                                <label for="username" class="form-label small text-muted">Username</label> <!-- Form label text for the username field -->
+                                <input type="text" class="form-control" id="username" placeholder="Enter username" required> <!-- Text input field for user to enter username -->
+                            </div> <!-- Closes username form group container -->
                             
-                            <div class="mb-4">
-                                <label for="password" class="form-label small text-muted">Password</label>
-                                <input type="password" class="form-control" id="password" placeholder="Enter password" required>
-                            </div>
+                            <div class="mb-4"> <!-- Opens form group container for password input with bottom margin -->
+                                <label for="password" class="form-label small text-muted">Password</label> <!-- Form label text for the password field -->
+                                <input type="password" class="form-control" id="password" placeholder="Enter password" required> <!-- Password input field for user to enter password securely -->
+                            </div> <!-- Closes password form group container -->
                             
-                            <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold">Login</button>
-                        </form>
+                            <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold">Login</button> <!-- Submit button for sending login form data -->
+                        </form> <!-- Closes login form element -->
 
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+                    </div> <!-- Closes card body container -->
+                </div> <!-- Closes card container -->
+            </div> <!-- Closes column element -->
+        </div> <!-- Closes row element -->
+    </div> <!-- Closes container wrapper -->
 
     <!-- JavaScript Source Files -->
-    <script src="js/dataManager.js"></script>
-    <script>
-        document.getElementById("loginForm").addEventListener("submit", async (e) => {
-            e.preventDefault();
-            const user = document.getElementById("username").value.trim();
-            const pass = document.getElementById("password").value.trim();
-            const alertBox = document.getElementById("loginAlert");
+    <script src="js/dataManager.js"></script> <!-- Loads data manager script file -->
+    <script> <!-- Opens inline script tag for login handling logic -->
+        document.getElementById("loginForm").addEventListener("submit", async (e) => { // Listens for the login form submit event asynchronously
+            e.preventDefault(); // Prevents default page refresh on form submission
+            const user = document.getElementById("username").value.trim(); // Gets and trims the input value for username
+            const pass = document.getElementById("password").value.trim(); // Gets and trims the input value for password
+            const alertBox = document.getElementById("loginAlert"); // Finds the alert box element for showing errors
 
-            if (!user || !pass) {
-                alertBox.textContent = "Please fill in all fields.";
-                alertBox.classList.remove("d-none");
-                return;
-            }
+            if (!user || !pass) { // Checks if either username or password field is empty
+                alertBox.textContent = "Please fill in all fields."; // Sets warning text when fields are missing
+                alertBox.classList.remove("d-none"); // Shows the alert box by removing the hidden CSS class
+                return; // Exits function early if validation fails
+            } // Closes validation if statement block
 
             // Simple login verification
-            localStorage.setItem("user", user);
-            localStorage.setItem("isLoggedIn", "true");
-            window.location.href = "dashboard.html";
-        });
-    </script>
-</body>
-</html>
+            localStorage.setItem("user", user); // Saves the logged-in username to browser local storage
+            localStorage.setItem("isLoggedIn", "true"); // Saves the login authentication state as true in local storage
+            window.location.href = "dashboard.html"; // Redirects the browser to the dashboard page
+        }); // Closes form submit event listener function
+    </script> <!-- Closes inline script tag -->
+</body> <!-- Closes main body container -->
+</html> <!-- Closes main HTML root element -->
