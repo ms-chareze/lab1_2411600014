@@ -1,52 +1,290 @@
-:root {
-    --portal-primary: #612D53;
-    --portal-accent: #A084DC;
-    --portal-bg-light: #FFF4F4;
-    
-    /* Override Bootstrap primary defaults */
-    --bs-primary: #612D53;
-    --bs-primary-rgb: 97, 45, 83;
+:root { /* Targets the root document to define global CSS variables */
+    --bs-primary: #A084DC; /* Sets a custom primary color variable for Bootstrap components */
+    --bs-primary-rgb: 160, 132, 220; /* Defines the RGB values of the primary color */
+    --bs-secondary: #B983FF; /* Sets a custom secondary color variable */
+    --bs-secondary-rgb: 185, 131, 255; /* Defines the RGB values of the secondary color */
+    --bs-success: #28a745; /* Defines the standard success/green color variable */
+    --bs-info: #17a2b8; /* Defines the standard informational/teal color variable */
+    --bs-warning: #F9B2D7; /* Sets a custom warning color variable */
+    --bs-danger: #dc3545; /* Defines the standard danger/red color variable */
+
+    /* Custom Theme Colors */
+    --theme-primary: #A084DC; /* Sets the main theme purple color */
+    --theme-secondary: #B983FF; /* Sets the secondary theme purple/violet color */
+    --theme-accent: #F9B2D7; /* Sets an accent pink color for highlights */
+    --theme-background: #FFF4F4; /* Sets a soft light pink page background color */
+    --theme-light-accent: #F3E8FF; /* Sets a lighter pastel accent background color */
+    --theme-text: #612D53; /* Sets a dark plum color for legible text */
 }
 
-/* Base Application Background */
-body {
-    background-color: var(--portal-bg-light);
-    color: #333333;
+body { /* Styles the main body element of the webpage */
+    background-color: var(--theme-background); /* Applies the custom soft background color */
+    color: var(--theme-text); /* Applies the custom dark text color */
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Sets a clean modern font family stack */
 }
 
-/* Style Navigation Bars */
-nav, .navbar {
-    background-color: #ffffff !important;
-    border-bottom: 3px solid var(--portal-accent) !important;
+.login-page { /* Styles the container class for the login view */
+    background: linear-gradient(135deg, var(--theme-primary), var(--theme-secondary)); /* Creates a diagonal purple gradient background */
+    min-height: 100vh; /* Ensures the container covers at least the full height of the viewport */
 }
 
-/* Style Buttons */
-.btn-primary, .btn-portal {
-    background-color: var(--portal-primary) !important;
-    border-color: var(--portal-primary) !important;
+.login-card { /* Styles the card container used inside the login page */
+    border: none; /* Removes any default borders */
+    border-radius: 12px; /* Rounds the corners of the login card */
+    overflow: hidden; /* Hides any child content that overflows the rounded borders */
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2); /* Adds a deep drop shadow for a floating effect */
+}
+
+.login-card .card-header { /* Styles the header section inside the login card */
+    background: linear-gradient(135deg, var(--theme-primary), var(--theme-secondary)); /* Applies a matching gradient background */
+    border-bottom: none; /* Removes the default bottom border of the card header */
+}
+
+.sidebar { /* Styles the navigation sidebar element */
+    background-color: #ffffff; /* Sets a solid white background color */
+    border-right: 1px solid rgba(0, 0, 0, 0.1); /* Adds a subtle light border on the right edge */
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.05); /* Adds a faint shadow effect to the side */
+}
+
+.sidebar .nav-link { /* Styles individual navigation links within the sidebar */
+    color: var(--theme-text); /* Sets the text color using the theme text variable */
+    border-radius: 8px; /* Rounds the corners of the clickable link area */
+    padding: 10px 16px; /* Adds inner spacing (padding) inside the link */
+    margin-bottom: 4px; /* Adds a small gap underneath each link */
+    transition: all 0.3s ease; /* Smoothly animates style changes */
+}
+
+.sidebar .nav-link:hover { /* Styles sidebar links when the mouse hovers over them */
+    background-color: var(--theme-light-accent); /* Changes the background to a light accent color */
+    color: var(--theme-primary); /* Changes the text color to the primary theme color */
+}
+
+.sidebar .nav-link.active { /* Styles the currently active or selected sidebar link */
+    background-color: var(--theme-primary); /* Fills the background with the primary theme color */
+    color: #ffffff; /* Changes the text color to solid white for contrast */
+}
+
+.sidebar .nav-link.text-danger:hover { /* Styles dangerous/logout links on hover */
+    background-color: #f8d7da; /* Applies a light red background color */
+    color: #dc3545 !important; /* Forces the text color to stay bright red */
+}
+
+.stat-card { /* Styles statistic summary cards */
+    border: none; /* Removes default borders */
+    border-radius: 12px; /* Rounds the card corners */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08); /* Adds a soft drop shadow */
+    transition: transform 0.3s ease, box-shadow 0.3s ease; /* Prepares smooth transition animations */
+}
+
+.stat-card:hover { /* Styles stat cards when hovered */
+    transform: translateY(-5px); /* Lifts the card up slightly */
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12); /* Intensifies the shadow for a floating depth effect */
+}
+
+.stat-card .card-body { /* Styles the inner body container of stat cards */
+    padding: 1.5rem; /* Sets uniform internal padding */
+}
+
+.stat-card .card-title { /* Styles the label text inside stat cards */
+    font-size: 0.9rem; /* Makes the title font slightly smaller */
+    text-transform: uppercase; /* Converts title text to uppercase letters */
+    letter-spacing: 0.5px; /* Adds slight spacing between characters */
+    margin-bottom: 0.5rem; /* Adds space below the title */
+}
+
+.stat-card .card-text { /* Styles the main numerical value inside stat cards */
+    font-size: 1.8rem; /* Sets a large font size for the numbers */
+    margin-bottom: 0; /* Removes default bottom margin */
+}
+
+.shadow-hover { /* Utility class for elements that gain a shadow on hover */
+    transition: box-shadow 0.3s ease; /* Smoothly animates shadow changes */
+}
+
+.shadow-hover:hover { /* Applies enhanced shadow when hovered */
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15) !important; /* Forces a prominent shadow effect */
+}
+
+.border-accent { /* Utility class for a left-side accent border */
+    border-left: 4px solid var(--theme-accent); /* Adds a thick pink left border line */
+}
+
+.border-primary-custom { /* Utility class for a left-side primary color border */
+    border-left: 4px solid var(--theme-primary); /* Adds a thick primary-colored left border line */
+}
+
+.border-success-custom { /* Utility class for a left-side success color border */
+    border-left: 4px solid var(--bs-success); /* Adds a thick green left border line */
+}
+
+.bg-gradient-primary { /* Utility class for applying a primary gradient background */
+    background: linear-gradient(135deg, var(--theme-primary), var(--theme-secondary)); /* Applies the purple gradient */
+}
+
+.text-accent { /* Utility class for accent-colored text */
+    color: var(--theme-accent); /* Sets text color to the theme accent */
+}
+
+.text-primary-custom { /* Utility class for primary-colored text */
+    color: var(--theme-primary); /* Sets text color to the theme primary color */
+}
+
+.btn-primary { /* Customizes primary button styling */
+    background-color: var(--theme-primary); /* Sets the button background to primary theme color */
+    border-color: var(--theme-primary); /* Sets the button border color to match */
+}
+
+.btn-primary:hover { /* Styles primary buttons on mouse hover */
+    background-color: #8363c8; /* Darkens the purple background shade */
+    border-color: #8363c8; /* Darkens the border color to match */
+}
+
+@media (max-width: 768px) { /* Applies responsive rules for tablets and mobile screens (768px wide or smaller) */
+    .sidebar {
+        min-height: auto !important; /* Removes forced minimum height on small screens */
+        height: auto !important; /* Adjusts sidebar height automatically */
+    }
+
+    .stat-card .card-text {
+        font-size: 1.4rem; /* Shrinks the stat card number font size for smaller viewports */
+    }
+}
+
+::-webkit-scrollbar { /* Styles the width of browser scrollbars */
+    width: 8px; /* Sets scrollbar thickness */
+}
+
+::-webkit-scrollbar-track { /* Styles the background track path of scrollbars */
+    background: #f1f1f1; /* Sets a light grey track color */
+    border-radius: 10px; /* Rounds the corners of the scrollbar track */
+}
+
+::-webkit-scrollbar-thumb { /* Styles the draggable sliding part of scrollbars */
+    background: var(--theme-secondary); /* Colors the scroll thumb using the secondary theme color */
+    border-radius: 10px; /* Rounds the corners of the scroll thumb */
+}
+
+::-webkit-scrollbar-thumb:hover { /* Styles the scroll thumb when hovered */
+    background: var(--theme-primary); /* Changes scroll thumb color to primary theme color */
+}
+
+.form-label { /* Styles form input text labels */
+    color: var(--theme-text); /* Sets label color to theme text color */
+    font-weight: 600; /* Makes the label font semi-bold for clarity */
+}
+
+#exportBtn { /* Styles the specific export action button element */
+    background-color: var(--bs-success); /* Sets button background to green */
+    color: #ffffff; /* Sets text color to white */
+    border: none; /* Removes borders */
+    transition: all 0.2s ease-in-out; /* Smooths hover transition animations */
+}
+
+#exportBtn:hover { /* Styles the export button on hover */
+    background-color: #218838; /* Darkens the green shade */
+    transform: translateY(-2px); /* Lifts the button up slightly */
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1); /* Adds a subtle shadow underneath */
+}
+
+.table-hover tbody tr:hover { /* Styles table rows when hovered over */
+    background-color: var(--theme-light-accent); /* Highlights the hovered table row with a soft background color */
+    cursor: pointer; /* Changes the mouse cursor to a pointing hand icon */
+}
+
+.chart-container { /* Styles wrapper containers used for data charts */
+    position: relative; /* Sets relative positioning for internal chart alignment */
+    border-radius: 8px; /* Rounds container corners */
+    padding: 10px; /* Adds internal padding around the chart */
+}
+
+/* ==========================================================================
+   Laravel (Lab 5) additions - extend the Lab 4 theme to server-rendered pages
+   ========================================================================== */
+
+.navbar.bg-gradient-primary { /* Top gradient navbar used by the app layout */
+    border-bottom: none;
+    box-shadow: 0 2px 8px rgba(97, 45, 83, 0.25);
+}
+
+.btn-primary:focus, .btn-primary:active { /* Keeps primary buttons on theme while pressed/focused */
+    background-color: #8363c8 !important;
+    border-color: #8363c8 !important;
+    box-shadow: 0 0 0 0.2rem rgba(160, 132, 220, 0.35);
+}
+
+.btn-outline-primary { /* Outline buttons use the theme purple */
+    color: var(--theme-primary);
+    border-color: var(--theme-primary);
+}
+
+.btn-outline-primary:hover {
+    background-color: var(--theme-primary);
+    border-color: var(--theme-primary);
+    color: #ffffff;
+}
+
+.form-control:focus, .form-select:focus { /* Purple focus ring for inputs */
+    border-color: var(--theme-primary);
+    box-shadow: 0 0 0 0.2rem rgba(160, 132, 220, 0.25);
+}
+
+.form-check-input:checked { /* Purple checkboxes */
+    background-color: var(--theme-primary);
+    border-color: var(--theme-primary);
+}
+
+a { color: var(--theme-primary); }
+a:hover { color: #8363c8; }
+
+.card-header.bg-gradient-primary { /* Gradient card headers (login card, modals, forms) */
+    color: #ffffff;
+    border-bottom: none;
+}
+
+.table thead.table-theme tr, /* Dark plum table header from the Lab 4 student table */
+.table-theme thead tr {
+    background-color: var(--theme-text);
+    color: #ffffff;
+}
+
+.table-theme thead th {
+    background-color: var(--theme-text);
+    color: #ffffff;
+    font-weight: 600;
+    border-bottom: none;
+}
+
+.badge-soft-primary {
+    background-color: var(--theme-light-accent);
+    color: var(--theme-primary);
+}
+
+.page-title { /* Page headings in the main content area */
+    color: var(--theme-text);
+    font-weight: 700;
+}
+
+.sidebar .nav-link.text-muted { /* Inactive sidebar links stay readable on the theme */
+    color: var(--theme-text) !important;
+}
+
+.sidebar .nav-link.active.text-muted {
     color: #ffffff !important;
 }
 
-.btn-primary:hover, .btn-portal:hover {
-    background-color: #4e2343 !important;
-    border-color: #4e2343 !important;
+.alert-theme { /* Soft themed notice used for the academic warning alert */
+    background-color: #fdecee;
+    color: #842029;
 }
 
-/* Style Cards */
-.card {
-    border: 1px solid rgba(97, 45, 83, 0.15);
-    border-radius: 0.5rem;
-    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+.login-card .form-control {
+    padding: 0.6rem 0.75rem;
 }
 
-/* Style Tables */
-.table {
-    background-color: #ffffff;
-}
+.invalid-feedback.d-block { font-size: 0.85rem; }
 
-.table thead th {
-    background-color: var(--portal-bg-light);
-    color: var(--portal-primary);
-    font-weight: 600;
-    border-bottom: 2px solid var(--portal-accent);
+.detail-label { /* Left column of the student detail table */
+    width: 30%;
+    background-color: var(--theme-light-accent);
+    color: var(--theme-text);
 }

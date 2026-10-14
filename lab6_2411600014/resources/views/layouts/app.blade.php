@@ -7,78 +7,122 @@
 
     <title>@yield('title', 'Student Grade Portal')</title>
 
-    <!-- Bootstrap CSS CDN -->
+    <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
 
-    <!-- Custom Theme Stylesheet (Public CSS Directory) -->
+    <!-- Lab 4 Theme (public/css/custom.css) -->
     <link rel="stylesheet" href="{{ asset('css/custom.css') }}">
 
-    <!-- Scripts -->
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @stack('head')
 </head>
-<body class="font-sans antialiased">
-    <div class="min-h-screen">
-        <!-- Navigation Section -->
-        <nav class="navbar navbar-expand-lg shadow-sm mb-4">
-            <div class="container">
-                <a class="navbar-brand fw-bold" href="{{ route('dashboard') }}">🎓 Student Grade Portal</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
-                    <ul class="navbar-nav align-items-center">
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ route('dashboard') }}">Dashboard</a>
+<body>
+
+    <!-- Top Purple Navbar -->
+    <nav class="navbar navbar-expand-lg bg-gradient-primary navbar-dark px-4 py-2">
+        <div class="container-fluid p-0">
+            <a class="navbar-brand fw-bold fs-4" href="{{ route('dashboard') }}">Student Grade Portal</a>
+            <div class="d-flex align-items-center text-white gap-3">
+                <span class="badge bg-light text-dark px-2 py-1">{{ Auth::user()->is_admin ? 'Admin Mode' : 'Staff Mode' }}</span>
+
+                {{-- Lab 6: notification bell (unread count + recent alerts) --}}
+                <x-notification-bell />
+
+                {{-- Lab 6: user dropdown with logout --}}
+                <div class="dropdown">
+                    <button class="btn btn-outline-light btn-sm dropdown-toggle px-3" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        {{ Auth::user()->name }}
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end shadow">
+                        <li><a class="dropdown-item" href="{{ route('profile.edit') }}">Profile &amp; Settings</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <form method="POST" action="{{ route('logout') }}">
+                                @csrf
+                                <button type="submit" class="dropdown-item text-danger fw-semibold">Logout</button>
+                            </form>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ route('students.index') }}">Students List</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ route('students.create') }}">Add Student</a>
-                        </li>
-                        
-                        @auth
-                            <li class="nav-item dropdown ms-3">
-                                <span class="text-secondary me-2">Hello, {{ Auth::user()->name }}</span>
-                                <form method="POST" action="{{ route('logout') }}" class="d-inline">
-                                    @csrf
-                                    <button type="submit" class="btn btn-sm btn-portal">Logout</button>
-                                </form>
-                            </li>
-                        @endauth
                     </ul>
                 </div>
             </div>
-        </nav>
+        </div>
+    </nav>
 
-        <!-- Page Heading / Header -->
-        @isset($header)
-            <header class="bg-white shadow mb-4">
-                <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-                    {{ $header }}
+    <div class="container-fluid">
+        <div class="row">
+
+            <!-- Left Navigation Sidebar -->
+            <div class="col-md-2 min-vh-100 sidebar p-3">
+                <div class="nav flex-column nav-pills">
+                    <a class="nav-link fw-semibold mb-2 {{ request()->routeIs('dashboard') ? 'active' : 'text-muted' }}"
+                       href="{{ route('dashboard') }}">Dashboard</a>
+                    <a class="nav-link fw-semibold mb-2 {{ request()->routeIs('students.index', 'students.show', 'students.edit') ? 'active' : 'text-muted' }}"
+                       href="{{ route('students.index') }}">Student Records</a>
+                    <a class="nav-link fw-semibold mb-2 {{ request()->routeIs('students.create') ? 'active' : 'text-muted' }}"
+                       href="{{ route('students.create') }}">Add Student</a>
+
+                    <hr class="my-2">
+                    <div class="small text-uppercase text-muted fw-bold px-2 mb-1">Unit Tracking</div>
+
+                    <a class="nav-link fw-semibold mb-2 {{ request()->routeIs('transactions.index', 'transactions.show') ? 'active' : 'text-muted' }}"
+                       href="{{ route('transactions.index') }}">Transactions</a>
+                    <a class="nav-link fw-semibold mb-2 {{ request()->routeIs('transactions.create') ? 'active' : 'text-muted' }}"
+                       href="{{ route('transactions.create') }}">Record Transaction</a>
+                    @can('adjust', App\Models\EnrollmentTransaction::class)
+                        <a class="nav-link fw-semibold mb-2 {{ request()->routeIs('adjustments.*') ? 'active' : 'text-muted' }}"
+                           href="{{ route('adjustments.create') }}">Unit Adjustment</a>
+                    @endcan
+                    <a class="nav-link fw-semibold mb-2 {{ request()->routeIs('reports.*') ? 'active' : 'text-muted' }}"
+                       href="{{ route('reports.movement') }}">Reports</a>
+
+                    <hr class="my-2">
+                    <a class="nav-link fw-semibold mb-2 {{ request()->routeIs('profile.*') ? 'active' : 'text-muted' }}"
+                       href="{{ route('profile.edit') }}">Profile &amp; Settings</a>
+
+                    <form method="POST" action="{{ route('logout') }}" class="mt-4">
+                        @csrf
+                        <button type="submit" class="nav-link text-danger fw-semibold w-100 text-start border-0 bg-transparent">Logout</button>
+                    </form>
                 </div>
-            </header>
-        @endisset
+            </div>
 
-        <!-- Main Content Section -->
-        <main class="container py-4">
-            @if(session('success'))
-                <div class="alert alert-success alert-dismissible fade show" role="alert">
-                    {{ session('success') }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-            @endif
+            <!-- Main Content Area -->
+            <main class="col-md-10 p-4">
+                @isset($header)
+                    <div class="mb-4">
+                        {{ $header }}
+                    </div>
+                @endisset
 
-            @yield('content')
-            {{ $slot ?? '' }}
-        </main>
+                {{-- Flash message display area --}}
+                @if(session('success'))
+                    <div class="alert alert-success alert-dismissible fade show shadow-sm border-0" role="alert">
+                        {{ session('success') }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                @endif
+
+                @if(session('error'))
+                    <div class="alert alert-danger alert-dismissible fade show shadow-sm border-0" role="alert">
+                        {{ session('error') }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                @endif
+
+                @if(session('status') === 'profile-updated' || session('status') === 'password-updated')
+                    <div class="alert alert-success alert-dismissible fade show shadow-sm border-0" role="alert">
+                        {{ session('status') === 'profile-updated' ? 'Profile saved.' : 'Password updated.' }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                @endif
+
+                @yield('content')
+                {{ $slot ?? '' }}
+            </main>
+        </div>
     </div>
 
-    <!-- Bootstrap JS Bundle CDN -->
+    <!-- Bootstrap 5 JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    @stack('scripts')
 </body>
 </html>

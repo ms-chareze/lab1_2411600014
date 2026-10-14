@@ -2,29 +2,85 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\EnrollmentTransaction;
 use App\Models\Student;
-use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
     /**
-     * Display the dashboard with computed statistics.
+     * Display the dashboard with real statistics and the Lab 4 charts.
      */
     public function index()
     {
-        // Calculate statistics for the student grade portal
-        $totalStudents = Student::count();
-        $averageGpa = Student::avg('gpa');
-        $regularCount = Student::where('status', 'Regular')->count();
-        $irregularCount = Student::where('status', 'Irregular')->count();
-        $totalUnits = Student::sum('enrolled_units');
+        // ---- Metric cards -------------------------------------------------
+        $totalStudents  = Student::count();
+        $averageGpa     = (float) Student::avg('gpa');
+        $warningCount   = Student::whereIn('status', Student::WARNING_STATUSES)->count();
+        $totalUnits     = (int) Student::sum('enrolled_units');
+
+        // ---- Lab 6: unit tracking -----------------------------------------
+        $lowLoadCount      = Student::lowLoad()->count();
+        $transactionsToday = EnrollmentTransaction::whereDate('created_at', today())->count();
+        $lowLoadStudents   = Student::lowLoad()->orderBy('enrolled_units')->orderBy('name')->get();
+        $recentTransactions = EnrollmentTransaction::with(['student', 'user'])->recent()->take(8)->get();
+
+        // ---- Academic warning alert ---------------------------------------
+        $warningStudents = Student::whereIn('status', Student::WARNING_STATUSES)
+            ->orderByDesc('gpa')
+            ->get();
+
+        // ---- Recently added table -----------------------------------------
+        $recentStudents = Student::latest()->take(5)->get();
+
+        // ---- Chart 1: Course Distribution (bar) ---------------------------
+        $courseCounts = Student::selectRaw('course, COUNT(*) as total')
+            ->groupBy('course')
+            ->orderBy('course')
+            ->pluck('total', 'course');
+
+        // ---- Chart 2: Academic Status Ratio (doughnut) --------------------
+        $dbStatusCounts = Student::selectRaw('status, COUNT(*) as total')
+            ->groupBy('status')
+            ->pluck('total', 'status');
+
+        $statusCounts = [];
+        foreach (array_keys(Student::STATUSES) as $status) {
+            $statusCounts[$status] = (int) ($dbStatusCounts[$status] ?? 0);
+        }
+
+        // ---- Chart 3: Top Performing GPA (horizontal bar) -----------------
+        // This portal uses the 1.00 (highest) to 5.00 (lowest) grading scale,
+        // so the best students are the ones with the LOWEST GPA value.
+        $topStudents = Student::orderBy('gpa')->orderBy('name')->take(5)->get(['name', 'gpa']);
+
+        $chartData = [
+            'course' => [
+                'labels' => $courseCounts->keys()->values(),
+                'data'   => $courseCounts->values()->map(fn ($v) => (int) $v),
+            ],
+            'status' => [
+                'labels' => array_keys($statusCounts),
+                'data'   => array_values($statusCounts),
+                'colors' => ['#28a745', '#17a2b8', '#ffc107', '#dc3545'],
+            ],
+            'top' => [
+                'labels' => $topStudents->pluck('name')->values(),
+                'data'   => $topStudents->pluck('gpa')->map(fn ($v) => (float) $v)->values(),
+            ],
+        ];
 
         return view('dashboard', compact(
             'totalStudents',
             'averageGpa',
-            'regularCount',
-            'irregularCount',
-            'totalUnits'
+            'warningCount',
+            'totalUnits',
+            'lowLoadCount',
+            'transactionsToday',
+            'lowLoadStudents',
+            'recentTransactions',
+            'warningStudents',
+            'recentStudents',
+            'chartData'
         ));
     }
 }

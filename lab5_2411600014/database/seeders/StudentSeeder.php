@@ -52,7 +52,7 @@ class StudentSeeder extends Seeder
                 'course' => 'BS Information Technology',
                 'gpa' => 2.75,
                 'enrolled_units' => 12,
-                'status' => 'Irregular',
+                'status' => 'Warning',
             ],
             [
                 'student_id' => 'STU-2026-006',
@@ -84,7 +84,7 @@ class StudentSeeder extends Seeder
                 'course' => 'BS Information Technology',
                 'gpa' => 3.00,
                 'enrolled_units' => 9,
-                'status' => 'Irregular',
+                'status' => 'Probation',
             ],
             [
                 'student_id' => 'STU-2026-010',
@@ -137,7 +137,8 @@ class StudentSeeder extends Seeder
         ];
 
         foreach ($students as $student) {
-            Student::create($student);
+            // updateOrCreate keeps the seeder safe to run more than once
+            Student::updateOrCreate(['student_id' => $student['student_id']], $student);
         }
     }
 }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Student;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class StudentController extends Controller
 {
@@ -12,7 +13,8 @@ class StudentController extends Controller
      */
     public function index()
     {
-        $students = Student::all();
+        $students = Student::orderBy('student_id')->get();
+
         return view('students.index', compact('students'));
     }
 
@@ -29,20 +31,7 @@ class StudentController extends Controller
      */
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'student_id'     => 'required|unique:students,student_id',
-            'name'           => 'required|string|max:255',
-            'course'         => 'required|string|max:255',
-            'gpa'            => 'required|numeric|min:1.00|max:5.00',
-            'enrolled_units' => 'required|integer|min:1',
-            'status'         => 'required|string',
-        ], [
-            'student_id.required' => 'The student ID field is required.',
-            'student_id.unique'   => 'This student ID is already registered in the system.',
-            'gpa.min'             => 'The GPA must be at least 1.00.',
-            'gpa.max'             => 'The GPA cannot exceed 5.00.',
-            'enrolled_units.min'  => 'Enrolled units must be at least 1.',
-        ]);
+        $validated = $request->validate($this->rules(), $this->messages());
 
         Student::create($validated);
 
@@ -70,20 +59,7 @@ class StudentController extends Controller
      */
     public function update(Request $request, Student $student)
     {
-        $validated = $request->validate([
-            'student_id'     => 'required|unique:students,student_id,' . $student->id,
-            'name'           => 'required|string|max:255',
-            'course'         => 'required|string|max:255',
-            'gpa'            => 'required|numeric|min:1.00|max:5.00',
-            'enrolled_units' => 'required|integer|min:1',
-            'status'         => 'required|string',
-        ], [
-            'student_id.required' => 'The student ID field is required.',
-            'student_id.unique'   => 'This student ID is already registered in the system.',
-            'gpa.min'             => 'The GPA must be at least 1.00.',
-            'gpa.max'             => 'The GPA cannot exceed 5.00.',
-            'enrolled_units.min'  => 'Enrolled units must be at least 1.',
-        ]);
+        $validated = $request->validate($this->rules($student), $this->messages());
 
         $student->update($validated);
 
@@ -98,5 +74,36 @@ class StudentController extends Controller
         $student->delete();
 
         return redirect()->route('students.index')->with('success', 'Student record deleted successfully.');
+    }
+
+    /**
+     * Validation rules shared by store() and update().
+     */
+    private function rules(?Student $student = null): array
+    {
+        return [
+            'student_id'     => ['required', 'string', 'max:50', Rule::unique('students', 'student_id')->ignore($student?->id)],
+            'name'           => ['required', 'string', 'max:255'],
+            'course'         => ['required', 'string', 'max:255'],
+            'gpa'            => ['required', 'numeric', 'min:1.00', 'max:5.00'],
+            'enrolled_units' => ['required', 'integer', 'min:1', 'max:30'],
+            'status'         => ['required', Rule::in(array_keys(Student::STATUSES))],
+        ];
+    }
+
+    /**
+     * Custom validation error messages.
+     */
+    private function messages(): array
+    {
+        return [
+            'student_id.required' => 'The student ID field is required.',
+            'student_id.unique'   => 'This student ID is already registered in the system.',
+            'gpa.min'             => 'The GPA must be at least 1.00.',
+            'gpa.max'             => 'The GPA cannot exceed 5.00.',
+            'enrolled_units.min'  => 'Enrolled units must be at least 1.',
+            'enrolled_units.max'  => 'Enrolled units cannot exceed 30.',
+            'status.in'           => 'Please choose a valid academic status.',
+        ];
     }
 }
